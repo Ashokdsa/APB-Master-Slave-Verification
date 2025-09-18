@@ -1,22 +1,22 @@
 interface inf(input bit clk);
   //input
-  logic PRESETn, TRANSFER, READ_WRITE;
-  logic [8:0] PWADDR, PRADDR;
-  logic [7:0] PWDATA;
-  //output
-  logic [7:0] DATA_OUT;
+  logic PCLK, PRESETn, transfer, READ_WRITE;
+  logic [8:0] apb_write_paddr;
+  logic [7:0]apb_write_data;
+  logic [8:0] apb_read_paddr;
   logic PSLVERR;
+  logic [7:0] apb_read_data_out;
   
   clocking drv_cb @(posedge clk);
-    output PRESETn, TRANSFER, READ_WRITE, PWADDR, PRADDR, PWDATA;
+    output PRESETn, transfer, READ_WRITE, apb_write_paddr, apb_read_paddr, apb_write_data;
   endclocking
   
   clocking p_mon_cb@(posedge clk);
-    input PSLVERR, DATA_OUT;
+    input PSLVERR, apb_read_data_out;
   endclocking
   
   clocking a_mon_cb@(posedge clk);
-    input PRESETn, TRANSFER, READ_WRITE, PWADDR, PRADDR, PWDATA;
+	output PRESETn, transfer, READ_WRITE, apb_write_paddr, apb_read_paddr, apb_write_data;
   endclocking
   
 endinterface
