@@ -1,24 +1,24 @@
 class seq_item extends uvm_sequence_item;
   //inputs
-  rand bit [7:0] PWDATA;
-  rand bit TRANSFER;
+  rand bit [7:0] apb_write_data;
+  rand bit transfer;
   rand bit READ_WRITE;
-  rand bit PRESETN;
-  rand bit [8:0] PRADDR;
-  rand bit [8:0] PWADDR;
+  rand bit PRESETn;
+  rand bit [8:0] apb_read_paddr;
+  rand bit [8:0] apb_write_addr;
   //outputs
-  bit [7:0] DATA_OUT;
-  bit SLVERR;
+  bit [7:0] apb_read_data_out;
+  bit PSLVERR;
   
   `uvm_object_utils_begin
-  `uvm_field_int(PWDATA, UVM_ALL_ON)
+  `uvm_field_int(apb_write_data, UVM_ALL_ON)
   `uvm_field_int(READ_WRITE, UVM_ALL_ON)
-  `uvm_field_int(TRANSFER, UVM_ALL_ON)
-  `uvm_field_int(PRESETN, UVM_ALL_ON)
-  `uvm_field_int(PRADDR, UVM_ALL_ON)
-  `uvm_field_int(PWADDR, UVM_ALL_ON)
-  `uvm_field_int(PRDATA, UVM_ALL_ON)
-  `uvm_field_int(SLVERR, UVM_ALL_ON)
+  `uvm_field_int(transfer, UVM_ALL_ON)
+  `uvm_field_int(PRESETn, UVM_ALL_ON)
+  `uvm_field_int(apb_read_addr, UVM_ALL_ON)
+  `uvm_field_int(apb_write_addr, UVM_ALL_ON)
+  `uvm_field_int(apb_read_data_out, UVM_ALL_ON)
+  `uvm_field_int(PSLVERR, UVM_ALL_ON)
   `uvm_object_utils_end
   
 endclass
