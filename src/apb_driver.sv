@@ -22,6 +22,7 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
   virtual task drive();
     @(posedge vif.drv_cb);
      vif.drv_cb.transfer<=seq.transfer;
+     vif.drv_cb.PRESETn<=seq.PRESETn;
      vif.drv_cb.READ_WRITE<=seq.READ_WRITE;
      vif.drv_cb.apb_write_paddr<=seq.apb_write_paddr;
      vif.drv_cb.apb_read_paddr<=seq.apb_read_paddr;
