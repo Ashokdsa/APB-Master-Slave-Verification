@@ -238,3 +238,34 @@ class apb_diff_slave_sequence extends apb_write_read_sequence;
     end
   endfunction
 endclass
+
+class apb_regress_sequence extends apb_write_read_sequence;
+  `uvm_object_utils(apb_diff_slave_sequence)
+  apb_write_read_sequence seq1;
+  apb_reset_sequence seq2;
+  apb_read_write_sequence seq3;
+  apb_transfer_sequence seq4;
+  apb_write_sequence seq5;
+  apb_read_sequence seq6;
+  apb_same_sequence seq7;
+  apb_diff_slave_sequence seq8;
+
+  function new(string name = "apb_regress_sequence");
+    super.new(name);
+  endfunction
+
+  function void body();
+    `uvm_do(seq1)
+    `uvm_do(seq2)
+    `uvm_do(seq3)
+    `uvm_do(seq4)
+    `uvm_do(seq5)
+    `uvm_do(seq6)
+    `uvm_do(seq7)
+    `uvm_do(seq8)
+  endfunction
+
+  function void post_randomize();
+    req.rand_mode(1);
+  endfunction
+endclass
