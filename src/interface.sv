@@ -16,7 +16,7 @@ interface inf(input bit clk);
   endclocking
   
   clocking a_mon_cb@(posedge clk);
-	output PRESETn, transfer, READ_WRITE, apb_write_paddr, apb_read_paddr, apb_write_data;
+	input PRESETn, transfer, READ_WRITE, apb_write_paddr, apb_read_paddr, apb_write_data;
   endclocking
   
 endinterface
