@@ -2,6 +2,7 @@ class apb_passive_monitor extends uvm_monitor;
   virtual apb_inf vif;
   uvm_analysis_port #(apb_sequence_item) item_collected_port;
   apb_sequence_item seq_item;
+  event pass_e;
 
   `uvm_component_utils(apb_passive_monitor)
 
@@ -24,8 +25,8 @@ class apb_passive_monitor extends uvm_monitor;
    forever 
      begin
        @(pass_e);
-        seq_item.apb_read_data_out = vif.mon_cb.apb_read_data_out;
-        seq_item.PSLVERR = vif.mon_cb.PSLVERR;
+        seq_item.apb_read_data_out = vif.p_mon_cb.apb_read_data_out;
+        seq_item.PSLVERR = vif.p_mon_cb.PSLVERR;
         item_collected_port.write(seq_item);
     end
   endtask

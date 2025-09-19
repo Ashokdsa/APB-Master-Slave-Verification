@@ -3,6 +3,7 @@ SHELL := /bin/csh
 
 .ONESHELL:	
 all:
+	source $(QUESTA)
 	make clean
 	make compile
 	make simulate
@@ -13,6 +14,7 @@ clean:
 	rm -rf covReport alu_coverage.ucdb
 	rm apb.log simulation.log
 	rm apb_coverage.ucdb
+	rm wave.vcd
 	clear
 	clear
 	clear

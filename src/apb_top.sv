@@ -12,13 +12,13 @@ module top;
 
   apb_inf vif(clk);
 
-  APB_Protocol(.PCLK(clk),.PRESETn(vif.PRESETn),.transfer(vif.transfer),.READ_WRITE(vif.READ_WRITE),.apb_write_paddr(vif.apb_write_paddr),.apb_write_data(vif.apb_write_data),.apb_read_paddr(vif.apb_read_paddr),.PSLVERR(vif.PSLVERR),.apb_read_data_out(vif.apb_read_data_out));
+  APB_Protocol DUT(.PCLK(clk),.PRESETn(vif.PRESETn),.transfer(vif.transfer),.READ_WRITE(vif.READ_WRITE),.apb_write_paddr(vif.apb_write_paddr),.apb_write_data(vif.apb_write_data),.apb_read_paddr(vif.apb_read_paddr),.PSLVERR(vif.PSLVERR),.apb_read_data_out(vif.apb_read_data_out));
   
   apb_test test;
   event act_e,pass_e;
   
   initial begin
-    uvm_config_db#(virtual inf)::set(null, "*", "vif", vif);
+    uvm_config_db#(virtual apb_inf)::set(null, "*", "vif", vif);
     uvm_config_db#(event)::set(null, "*", "ev1", act_e);
     uvm_config_db#(event)::set(null, "*", "ev2", pass_e);
     $dumpfile("wave.vcd");

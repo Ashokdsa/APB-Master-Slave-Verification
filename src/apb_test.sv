@@ -22,16 +22,18 @@ class apb_test extends uvm_test;
   endfunction
 
   function void end_of_elaboration();
-    uvm_top.print_topology();
+    //uvm_top.print_topology();
   endfunction
 
   task run_phase(uvm_phase phase);
     uvm_objection phase_done = phase.get_objection();
     super.run_phase(phase);
     phase.raise_objection(this);
+      `uvm_info(get_name,"SEQUENCE STARTED",UVM_NONE)
       base = apb_write_read_sequence::type_id::create("apb_sequence");
-      base.start(apb_env.apb_active_agent.apb_sequencer);
+      base.start(apb_env.active_agent.sequencer);
     phase.drop_objection(this);
     phase_done.set_drain_time(this,20);
+    `uvm_info(get_name,"SEQUENCE ENDED",UVM_NONE)
   endtask
 endclass

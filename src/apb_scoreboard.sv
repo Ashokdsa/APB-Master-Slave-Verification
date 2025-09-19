@@ -73,7 +73,7 @@ class apb_scoreboard extends uvm_scoreboard;
     int unsigned idx;
     rs_out.copy(rs_in);
 
-    if (rs_in.RESETn == 0) 
+    if (rs_in.PRESETn == 0) 
       begin
         rs_out.apb_read_data_out = 8'h00;
         rs_out.PSLVERR = 1'b0;

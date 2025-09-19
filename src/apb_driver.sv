@@ -24,44 +24,44 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
   virtual task run_phase(uvm_phase phase);
     @(posedge vif.drv_cb);
     forever begin
-      seq_item_port.get_next_item(seq); 
+      seq_item_port.get_next_item(req); 
     drive();
     seq_item_port.item_done();
     end
   endtask
   virtual task drive();
     @(posedge vif.drv_cb);
-    if(seq.READ_WRITE)
+    if(req.READ_WRITE)
      begin
-     vif.drv_cb.transfer<=seq.transfer;
-     vif.drv_cb.PRESETn<=seq.PRESETn;
-     vif.drv_cb.READ_WRITE<=seq.READ_WRITE;
-     vif.drv_cb.apb_write_paddr<=seq.apb_write_paddr;
-     vif.drv_cb.apb_write_data<=seq.apb_write_data;
+     vif.drv_cb.transfer<=req.transfer;
+     vif.drv_cb.PRESETn<=req.PRESETn;
+     vif.drv_cb.READ_WRITE<=req.READ_WRITE;
+     vif.drv_cb.apb_write_paddr<=req.apb_write_paddr;
+     vif.drv_cb.apb_write_data<=req.apb_write_data;
      ->act_e;
-       if(seq.transfer==1 &&(!prev_transf))  //IF FIRST TRANSFER, 
+       if(req.transfer==1 &&(!prev_transf))  //IF FIRST TRANSFER, 
          repeat(3)@(posedge vif.drv_cb);
-       else if(seq.transfer==1&&(prev_transf))  //NOT A FIRST TRANSFER  
+       else if(req.transfer==1&&(prev_transf))  //NOT A FIRST TRANSFER  
          repeat(2)@(posedge vif.drv_cb);
-       else if(seq.transfer==0)                    //NO TRANSFER 
+       else if(req.transfer==0)                    //NO TRANSFER 
             @(posedge vif.drv_cb);
-       prev_transf=seq.transfer;
+       prev_transf=req.transfer;
      ->pass_e;
      end
      else
      begin
-     vif.drv_cb.transfer<=seq.transfer;
-     vif.drv_cb.PRESETn<=seq.PRESETn;
-     vif.drv_cb.READ_WRITE<=seq.READ_WRITE;
-     vif.drv_cb.apb_read_paddr<=seq.apb_read_paddr;
+     vif.drv_cb.transfer<=req.transfer;
+     vif.drv_cb.PRESETn<=req.PRESETn;
+     vif.drv_cb.READ_WRITE<=req.READ_WRITE;
+     vif.drv_cb.apb_read_paddr<=req.apb_read_paddr;
      ->act_e;
-      if(seq.transfer==1 &&(!prev_transf))
+      if(req.transfer==1 &&(!prev_transf))
          repeat(3)@(posedge vif.drv_cb);
-       else if(seq.transfer==1&&(prev_transf))
+       else if(req.transfer==1&&(prev_transf))
          repeat(2)@(posedge vif.drv_cb);
-       else if(seq.transfer==0)
+       else if(req.transfer==0)
             @(posedge vif.drv_cb);
-       prev_transf=seq.transfer;
+       prev_transf=req.transfer;
        ->pass_e;
      end
   endtask
