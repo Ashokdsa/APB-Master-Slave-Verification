@@ -8,19 +8,19 @@ class apb_subscriber extends uvm_subscriber#(apb_sequence_item);
   apb_sequence_item mon;
   
 covergroup input_cg;
-  coverpoint drv.transfer { bins enable = {1}; bins disable = {0}; }
-  coverpoint drv.apb_write_paddr {bins w_addr[]  = {[0:511]};}
-  coverpoint drv.apb_read_paddr {bins r_addr[]  = {[0:511]};}
-  coverpoint drv.READ_WRITE{ bins read_write = {0,1}; }
-  coverpoint drv.apb_write_data { bins data_vals[] = {[0:255]}; }
-  cross drv.READ_WRITE, drv.apb_write_paddr;
-  cross drv.READ_WRITE, drv.apb_read_paddr;
+  transfer_cp:   coverpoint drv.transfer { bins enable = {1}; bins disable = {0}; }
+  write_addr_cp: coverpoint drv.apb_write_paddr {bins w_addr_slv1[]  = {[0:255]}; bins w_addr_slv2[]  = {[256:511]};}
+  read_addr_cp:  coverpoint drv.apb_read_paddr {bins r_addr_slv1[]  = {[0:255]}; bins r_addr_slv2[]  = {[256:511]};}
+  READ_WRITE_cp: coverpoint drv.READ_WRITE{ bins read_write = {0,1}; }
+  write_data_cp: coverpoint drv.apb_write_data { bins data_vals[] = {[0:255]}; }
+  READ_WRITExwrite_addr: cross READ_WRITE_cp, write_addr_cp;
+  READ_WRITExread_addr:  cross READ_WRITE_cp, read_addr_cp;
 endgroup
   
   covergroup output_cg;
-    coverpoint mon.apb_read_data_out { bins rdata_vals[] = {[0:255]}; }
-    coverpoint mon.PSLVERR { bins no_err = {0}; bins err = {1}; }
-    cross mon.PSLVERR, mon.apb_read_paddr;
+    read_data_cp: coverpoint mon.apb_read_data_out { bins rdata_vals[] = {[0:255]}; }
+    slverr_cp:    coverpoint mon.PSLVERR { bins no_err = {0}; bins err = {1}; }
+    read_dataxslverr: cross slverr_cp, read_data_cp;
   endgroup
 
   function new(string name = "subs", uvm_component parent = null);
