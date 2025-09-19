@@ -22,6 +22,7 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
   endfunction
   
   virtual task run_phase(uvm_phase phase);
+    @(posedge vif.drv_cb);
     forever begin
       seq_item_port.get_next_item(seq); 
     drive();

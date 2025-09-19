@@ -1,21 +1,26 @@
 `include "uvm_macros.svh"
 import uvm_pkg::*;
+`include "apb_pkg.svh"
+import apb_pkg::*;
 `include "apb_interface.sv"
-`include"apb_pkg.svh"
 `include "/fetools/work_area/frontend/Batch_10/APB_project/apbtop.v"
 
 module top;
-  import apb_pkg::*;
   bit clk;
 
   always #5 clk = ~clk;
 
   apb_inf vif(clk);
 
-  APB_Protocol(.PCLK(clk),PRESETn,transfer,READ_WRITE,apb_write_paddr,apb_write_data,apb_read_paddr,PSLVERR,apb_read_data_out);
+  APB_Protocol(.PCLK(clk),.PRESETn(vif.PRESETn),.transfer(vif.transfer),.READ_WRITE(vif.READ_WRITE),.apb_write_paddr(vif.apb_write_paddr),.apb_write_data(vif.apb_write_data),.apb_read_paddr(vif.apb_read_paddr),.PSLVERR(vif.PSLVERR),.apb_read_data_out(vif.apb_read_data_out));
+  
   apb_test test;
+  event act_e,pass_e;
+  
   initial begin
     uvm_config_db#(virtual inf)::set(null, "*", "vif", vif);
+    uvm_config_db#(event)::set(null, "*", "ev1", act_e);
+    uvm_config_db#(event)::set(null, "*", "ev2", pass_e);
     $dumpfile("wave.vcd");
     $dumpvars(0);
   end

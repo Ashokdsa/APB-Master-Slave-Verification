@@ -16,7 +16,7 @@ class apb_active_agent extends uvm_agent;
       	driver = apb_driver::type_id::create("driver", this);
       	sequencer = apb_sequencer::type_id::create("sequencer", this);
       end
-      monitor = apb_monitor::type_id::create("monitor", this);
+      active_monitor = apb_active_monitor::type_id::create("monitor", this);
   	endfunction:build_phase
 
   	function void connect_phase(uvm_phase phase);

@@ -3,7 +3,7 @@ class apb_test extends uvm_test;
   apb_environment apb_env;
   apb_write_read_sequence base;
 
-  function new(string name = "apb_test",uvm_component = null)
+  function new(string name = "apb_test",uvm_component parent = null);
     super.new(name,parent);
   endfunction
 
@@ -33,5 +33,5 @@ class apb_test extends uvm_test;
       base.start(apb_env.apb_active_agent.apb_sequencer);
     phase.drop_objection(this);
     phase_done.set_drain_time(this,20);
-  endfunction
+  endtask
 endclass

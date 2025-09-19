@@ -4,7 +4,7 @@ class apb_active_monitor extends uvm_monitor;
   uvm_analysis_port #(apb_sequence_item) item_collected_port;
   apb_sequence_item seq_item;
 
-  `uvm_component_utils(apb_monitor)
+  `uvm_component_utils(apb_active_monitor)
 
   function new (string name, uvm_component parent);
     super.new(name, parent);

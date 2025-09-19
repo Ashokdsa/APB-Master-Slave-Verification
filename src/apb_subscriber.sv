@@ -1,4 +1,3 @@
-`include "defines.svh"
 `uvm_analysis_imp_decl(_passive_mon)
 
 class apb_subscriber extends uvm_subscriber#(apb_sequence_item);
@@ -8,7 +7,7 @@ class apb_subscriber extends uvm_subscriber#(apb_sequence_item);
   apb_sequence_item mon;
   
 covergroup input_cg;
-  transfer_cp:   coverpoint drv.transfer { bins enable = {1}; bins disable = {0}; }
+  transfer_cp:   coverpoint drv.transfer { bins enabled = {1}; bins disabled = {0}; }
   write_addr_cp: coverpoint drv.apb_write_paddr {bins w_addr_slv1[]  = {[0:255]}; bins w_addr_slv2[]  = {[256:511]};}
   read_addr_cp:  coverpoint drv.apb_read_paddr {bins r_addr_slv1[]  = {[0:255]}; bins r_addr_slv2[]  = {[256:511]};}
   READ_WRITE_cp: coverpoint drv.READ_WRITE{ bins read_write = {0,1}; }
@@ -40,7 +39,7 @@ endgroup
     `uvm_info(get_name,"[DRIVER]:INPUT RECIEVED",UVM_HIGH)
   endfunction
 
-  virtual function void write_passive_mon(alu_sequence_item seq);
+  virtual function void write_passive_mon(apb_sequence_item seq);
     mon = seq;
     output_cg.sample();
     `uvm_info(get_name,"[MONITOR]:INPUT RECIEVED",UVM_HIGH)

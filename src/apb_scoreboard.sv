@@ -1,6 +1,5 @@
 // Code your testbench here
 // or browse Examples
-`include "apb_sequence_item.sv"
 `uvm_analysis_imp_decl(_passive)
 `uvm_analysis_imp_decl(_active)
 
@@ -77,7 +76,7 @@ class apb_scoreboard extends uvm_scoreboard;
     if (rs_in.RESETn == 0) 
       begin
         rs_out.apb_read_data_out = 8'h00;
-        rs_out.pslverr = 1'b0;
+        rs_out.PSLVERR = 1'b0;
         foreach (slave1_mem[i]) slave1_mem[i] = 8'h00;
         foreach (slave2_mem[i]) slave2_mem[i] = 8'h00;
 	  end 
@@ -93,7 +92,7 @@ class apb_scoreboard extends uvm_scoreboard;
         		  slave1_mem[idx] = rs_in.apb_write_data;
       		    else
         		  slave2_mem[idx] = rs_in.apb_write_data;
-                rs_out.pslverr=1'b0   // not sure about this pslverr
+                rs_out.PSLVERR=1'b0;   // not sure about this PSLVERR
               end
             else 
               begin
@@ -103,7 +102,7 @@ class apb_scoreboard extends uvm_scoreboard;
         		  rs_out.apb_read_data_out = slave1_mem[idx];
       			else
         		  rs_out.apb_read_data_out = slave2_mem[idx];
-      			rs_out.pslverr = 1'b0;// not sure about the pslverr 
+      			rs_out.PSLVERR = 1'b0;// not sure about the PSLVERR 
     		 end
           end
       end
@@ -112,6 +111,8 @@ class apb_scoreboard extends uvm_scoreboard;
 
  // run phase to compare the ref out and the mon out 
   task run_phase(uvm_phase phase);
+    bit PSLVERR_match;
+    bit data_match;
     super.run_phase(phase);
       forever begin
       // Wait until both queues have data
@@ -121,10 +122,10 @@ class apb_scoreboard extends uvm_scoreboard;
         mon_seq_out = mon_queue.pop_front();
         compares_total++;
 
-        bit pslverr_match = (ref_seq_out.pslverr === mon_seq_out.pslverr); // no need to compare
-        bit data_match    = (ref_seq_out.apb_read_data_out === mon_seq_out.apb_read_data_out);
+        PSLVERR_match = (ref_seq_out.PSLVERR === mon_seq_out.PSLVERR); // no need to compare
+        data_match    = (ref_seq_out.apb_read_data_out === mon_seq_out.apb_read_data_out);
 
-        if (pslverr_match && data_match) 
+        if (PSLVERR_match && data_match) 
           begin
           compares_pass++;
             `uvm_info("APB_SCB", $sformatf("COMPARE PASS: ref=%s dut=%s", ref_seq_out.convert2string(), mon_seq_out.convert2string()), UVM_LOW)

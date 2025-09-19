@@ -6,7 +6,7 @@ all:
 	make clean
 	make compile
 	make simulate
-	vcover report -html apb_coverage.ucdb -htmldir cov_report -details
+	vcover report -html apb_coverage.ucdb -htmldir covReport -details
 
 clean:
 	rm -rf work/ transcript

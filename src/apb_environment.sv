@@ -15,7 +15,7 @@ class apb_environment extends uvm_env;
         active_agent = apb_active_agent::type_id::create("active_agent", this);
       	passive_agent = apb_passive_agent::type_id::create("passive_agent", this);
       	scoreboard = apb_scoreboard::type_id::create("scoreboard", this);
-      	subscriber = apb_coverage::type_id::create("coverage", this);
+      	subscriber = apb_subscriber::type_id::create("coverage", this);
   	endfunction:build_phase
   
     function void connect_phase(uvm_phase phase);    								   
