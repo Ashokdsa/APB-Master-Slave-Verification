@@ -15,12 +15,15 @@ class apb_passive_monitor extends uvm_monitor;
     super.build_phase(phase);
     if(!uvm_config_db#(virtual apb_inf)::get(this, "", "vif", vif))
        `uvm_fatal("NOVIF",{"virtual interface must be set for: ",get_full_name(),".vif"});
+    
+    if(!uvm_config_db#(event)::get(this, "", "ev2", pass_e))
+       `uvm_fatal("NOVIF",{"virtual interface must be set for: ",get_full_name(),".vif"});
   endfunction
 
   virtual task run_phase(uvm_phase phase);
    forever 
      begin
-       repeat(3)@(posedge vif.mon_cb);
+       @(pass_e);
         seq_item.apb_read_data_out = vif.mon_cb.apb_read_data_out;
         seq_item.PSLVERR = vif.mon_cb.PSLVERR;
         item_collected_port.write(seq_item);
