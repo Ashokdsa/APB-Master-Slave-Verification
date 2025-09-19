@@ -1,6 +1,6 @@
 `include "uvm_macros.svh"
 import uvm_pkg::*;
-`include "interface.sv"
+`include "apb_interface.sv"
 `include"apb_pkg.svh"
 `include "/fetools/work_area/frontend/Batch_10/APB_project/apbtop.v"
 

@@ -1,10 +1,8 @@
 QUESTA := /home/share/questa.csh
 SHELL := /bin/csh
 
-.ONESHELL:
-	
+.ONESHELL:	
 all:
-	source $(QUESTA)
 	make clean
 	make compile
 	make simulate
@@ -20,6 +18,7 @@ clean:
 	clear
 
 compile:
+	source $(QUESTA)
 	vlog -sv +acc +cover +fcover -l apb.log apb_top.sv
 
 simulate:
