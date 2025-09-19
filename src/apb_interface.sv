@@ -1,4 +1,4 @@
-interface inf(input bit clk);
+interface apb_inf(input bit clk);
   //input
   logic PCLK, PRESETn, transfer, READ_WRITE;
   logic [8:0] apb_write_paddr;

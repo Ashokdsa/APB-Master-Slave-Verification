@@ -10,7 +10,7 @@ module top;
 
   always #5 clk = ~clk;
 
-  inf vif(clk);
+  apb_inf vif(clk);
 
   APB_Protocol(.PCLK(clk),PRESETn,transfer,READ_WRITE,apb_write_paddr,apb_write_data,apb_read_paddr,PSLVERR,apb_read_data_out);
   apb_test test;
