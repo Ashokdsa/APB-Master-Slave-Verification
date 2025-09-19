@@ -1,9 +1,11 @@
 class apb_driver extends uvm_driver #(apb_sequence_item);
   virtual apb_inf vif;
+  logic prev_val;
   `uvm_component_utils(apb_driver)
     
   function new (string name, uvm_component parent);
     super.new(name, parent);
+   
   endfunction 
 
   function void build_phase(uvm_phase phase);
@@ -21,14 +23,31 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
   endtask
   virtual task drive();
     @(posedge vif.drv_cb);
+    if(seq.READ_WRITE)
+     begin
      vif.drv_cb.transfer<=seq.transfer;
      vif.drv_cb.PRESETn<=seq.PRESETn;
      vif.drv_cb.READ_WRITE<=seq.READ_WRITE;
      vif.drv_cb.apb_write_paddr<=seq.apb_write_paddr;
-     vif.drv_cb.apb_read_paddr<=seq.apb_read_paddr;
      vif.drv_cb.apb_write_data<=seq.apb_write_data;
-
-    repeat(2)@(posedge vif.DRV.CLK);
+       if(prev_val===apb_write_paddr[8])
+         repeat(2)@(posedge vif.DRV.CLK);
+       else
+         repeat(3)@(posedge vif.DRV.CLK);
+       prev_val=apb_write_paddr[8];
+     end
+     else
+     begin
+     vif.drv_cb.transfer<=seq.transfer;
+     vif.drv_cb.PRESETn<=seq.PRESETn;
+     vif.drv_cb.READ_WRITE<=seq.READ_WRITE;
+     vif.drv_cb.apb_read_paddr<=seq.apb_read_paddr;
+       if(prev_val===apb_read_paddr[8])
+         repeat(2)@(posedge vif.DRV.CLK);
+       else
+         repeat(3)@(posedge vif.DRV.CLK);
+       prev_val=apb_write_paddr[8];
+     end
   endtask
   
 endclass
