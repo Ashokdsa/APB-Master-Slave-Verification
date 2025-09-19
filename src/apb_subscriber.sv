@@ -13,7 +13,7 @@ covergroup input_cg;
   coverpoint drv.apb_read_paddr {bins r_addr[]  = {[0:255]};}
   coverpoint drv.READ_WRITE{ bins read_write = {0,1}; }
   coverpoint drv.apb_write_data { bins data_vals[] = {[0:255]}; }
-  ccross drv.READ_WRITE, drv.apb_write_paddr;
+  cross drv.READ_WRITE, drv.apb_write_paddr;
 endgroup
   
   covergroup output_cg;
@@ -33,7 +33,7 @@ endgroup
     pass_mon = new("pass_mon",this);
   endfunction
 
-  virtual function void write(alu_sequence_item t);
+  virtual function void write(apb_sequence_item t);
     drv = t;
    	input_cg.sample();
     `uvm_info(get_name,"[DRIVER]:INPUT RECIEVED",UVM_HIGH)
