@@ -31,6 +31,7 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
   endtask
   virtual task drive();
     @(posedge vif.drv_cb);
+    `uvm_info(get_name,"SENT THE VALUES TO DUT",UVM_MEDIUM)
     if(req.READ_WRITE)
      begin
      vif.drv_cb.transfer<=req.transfer;
@@ -39,6 +40,7 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
      vif.drv_cb.apb_write_paddr<=req.apb_write_paddr;
      vif.drv_cb.apb_write_data<=req.apb_write_data;
      ->act_e;
+     `uvm_info(get_name,"ACTIVE MON TRIGGERED",UVM_MEDIUM)
        if(req.transfer==1 &&(!prev_transf))  //IF FIRST TRANSFER, 
          repeat(3)@(posedge vif.drv_cb);
        else if(req.transfer==1&&(prev_transf))  //NOT A FIRST TRANSFER  
@@ -47,6 +49,7 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
             @(posedge vif.drv_cb);
        prev_transf=req.transfer;
      ->pass_e;
+     `uvm_info(get_name,"PASSIVE MON TRIGGERED",UVM_MEDIUM)
      end
      else
      begin
@@ -55,6 +58,7 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
      vif.drv_cb.READ_WRITE<=req.READ_WRITE;
      vif.drv_cb.apb_read_paddr<=req.apb_read_paddr;
      ->act_e;
+     `uvm_info(get_name,"ACTIVE MON TRIGGERED",UVM_MEDIUM)
       if(req.transfer==1 &&(!prev_transf))
          repeat(3)@(posedge vif.drv_cb);
        else if(req.transfer==1&&(prev_transf))
@@ -63,6 +67,7 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
             @(posedge vif.drv_cb);
        prev_transf=req.transfer;
        ->pass_e;
+        `uvm_info(get_name,"PASSIVE MON TRIGGERED",UVM_MEDIUM)
      end
   endtask
   
