@@ -9,11 +9,12 @@ class apb_subscriber extends uvm_subscriber#(apb_sequence_item);
   
 covergroup input_cg;
   coverpoint drv.transfer { bins enable = {1}; bins disable = {0}; }
-  coverpoint drv.apb_write_paddr {bins w_addr[]  = {[0:255]};}
-  coverpoint drv.apb_read_paddr {bins r_addr[]  = {[0:255]};}
+  coverpoint drv.apb_write_paddr {bins w_addr[]  = {[0:511]};}
+  coverpoint drv.apb_read_paddr {bins r_addr[]  = {[0:511]};}
   coverpoint drv.READ_WRITE{ bins read_write = {0,1}; }
   coverpoint drv.apb_write_data { bins data_vals[] = {[0:255]}; }
   cross drv.READ_WRITE, drv.apb_write_paddr;
+  cross drv.READ_WRITE, drv.apb_read_paddr;
 endgroup
   
   covergroup output_cg;
