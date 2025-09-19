@@ -9,18 +9,15 @@ class apb_test extends uvm_test;
 
   function void build_phase(uvm_phase phase);
     super.build_phase(phase);
-  //HAVE TO DO THIS
-    //base_sequence::type_id::set_type_override(alu_sequence::get_type());
-    //base_sequence::type_id::set_type_override(alu_glo_sequence::get_type());
-    //base_sequence::type_id::set_type_override(alu_err_sequence::get_type());
-    //base_sequence::type_id::set_type_override(alu_corner_sequence::get_type());
-    //base_sequence::type_id::set_type_override(alu_time_sequence::get_type());
-    //base_sequence::type_id::set_type_override(alu_w_time_sequence::get_type());
-    //base_sequence::type_id::set_type_override(alu_flag_sequence::get_type());
-    //base_sequence::type_id::set_type_override(alu_mult_sequence::get_type());
-    //base_sequence::type_id::set_type_override(alu_mult_time_sequence::get_type());
-    //base_sequence::type_id::set_type_override(alu_crn_mult_sequence::get_type());
-    base_sequence::type_id::set_type_override(regression_sequence::get_type());
+    base_sequence::type_id::set_type_override(apb_write_read_sequence::get_type());
+    //base_sequence::type_id::set_type_override(apb_reset_sequence::get_type());
+    //base_sequence::type_id::set_type_override(apb_read_write_sequence::get_type());
+    //base_sequence::type_id::set_type_override(apb_transfer_sequence::get_type());
+    //base_sequence::type_id::set_type_override(apb_write_sequence::get_type());
+    //base_sequence::type_id::set_type_override(apb_read_sequence::get_type());
+    //base_sequence::type_id::set_type_override(apb_same_sequence::get_type());
+    //base_sequence::type_id::set_type_override(apb_diff_slave_sequence::get_type());
+    //base_sequence::type_id::set_type_override(apb_regress_sequence::get_type());
     apb_env = apb_environment::type_id::create("apb_env",this);
   endfunction
 
