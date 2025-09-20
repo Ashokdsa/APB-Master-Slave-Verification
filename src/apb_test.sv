@@ -9,7 +9,6 @@ class apb_test extends uvm_test;
 
   function void build_phase(uvm_phase phase);
     super.build_phase(phase);
-    apb_write_read_sequence::type_id::set_type_override(apb_write_read_sequence::get_type());
     //apb_write_read_sequence::type_id::set_type_override(apb_reset_sequence::get_type());
     //apb_write_read_sequence::type_id::set_type_override(apb_read_write_sequence::get_type());
     //apb_write_read_sequence::type_id::set_type_override(apb_transfer_sequence::get_type());

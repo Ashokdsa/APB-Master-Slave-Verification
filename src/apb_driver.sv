@@ -6,69 +6,73 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
     
   function new (string name, uvm_component parent);
     super.new(name, parent);
-   
   endfunction 
 
   function void build_phase(uvm_phase phase);
     super.build_phase(phase);
     if(!uvm_config_db#(virtual apb_inf)::get(this, "", "vif", vif))
-       `uvm_fatal("NO_VIF",{"virtual interface must be set for: ",get_full_name(),".vif"});
+      `uvm_fatal("NO_VIF",{"virtual interface must be set for: ",get_full_name(),".vif"});
     
     if(!uvm_config_db#(event)::get(this, "", "ev1", act_e))
-       `uvm_fatal("NO_VIF",{"virtual interface must be set for: ",get_full_name(),".vif"});
+      `uvm_fatal("NO_VIF",{"virtual interface must be set for: ",get_full_name(),".vif"});
     
     if(!uvm_config_db#(event)::get(this, "", "ev2", pass_e))
-       `uvm_fatal("NO_VIF",{"virtual interface must be set for: ",get_full_name(),".vif"});
+      `uvm_fatal("NO_VIF",{"virtual interface must be set for: ",get_full_name(),".vif"});
   endfunction
   
   virtual task run_phase(uvm_phase phase);
-    @(posedge vif.drv_cb);
+    @(vif.drv_cb);
     forever begin
       seq_item_port.get_next_item(req); 
-    drive();
-    seq_item_port.item_done();
+      drive();
+      seq_item_port.item_done();
     end
   endtask
   virtual task drive();
-    @(posedge vif.drv_cb);
+    @(vif.drv_cb);
     `uvm_info(get_name,"SENT THE VALUES TO DUT",UVM_MEDIUM)
+    if(get_report_verbosity_level() >= UVM_MEDIUM)
+      $display("SYSTEM BUS SIGNALS: transfer = %0b PRESETn = %0b\nMAIN:\nREAD_WRITE = %0b",req.transfer,req.PRESETn,req.READ_WRITE);
     if(req.READ_WRITE)
-     begin
-     vif.drv_cb.transfer<=req.transfer;
-     vif.drv_cb.PRESETn<=req.PRESETn;
-     vif.drv_cb.READ_WRITE<=req.READ_WRITE;
-     vif.drv_cb.apb_write_paddr<=req.apb_write_paddr;
-     vif.drv_cb.apb_write_data<=req.apb_write_data;
-     ->act_e;
-     `uvm_info(get_name,"ACTIVE MON TRIGGERED",UVM_MEDIUM)
-       if(req.transfer==1 &&(!prev_transf))  //IF FIRST TRANSFER, 
-         repeat(3)@(posedge vif.drv_cb);
-       else if(req.transfer==1&&(prev_transf))  //NOT A FIRST TRANSFER  
-         repeat(2)@(posedge vif.drv_cb);
-       else if(req.transfer==0)                    //NO TRANSFER 
-            @(posedge vif.drv_cb);
-       prev_transf=req.transfer;
-     ->pass_e;
-     `uvm_info(get_name,"PASSIVE MON TRIGGERED",UVM_MEDIUM)
-     end
-     else
-     begin
-     vif.drv_cb.transfer<=req.transfer;
-     vif.drv_cb.PRESETn<=req.PRESETn;
-     vif.drv_cb.READ_WRITE<=req.READ_WRITE;
-     vif.drv_cb.apb_read_paddr<=req.apb_read_paddr;
-     ->act_e;
-     `uvm_info(get_name,"ACTIVE MON TRIGGERED",UVM_MEDIUM)
-      if(req.transfer==1 &&(!prev_transf))
-         repeat(3)@(posedge vif.drv_cb);
-       else if(req.transfer==1&&(prev_transf))
-         repeat(2)@(posedge vif.drv_cb);
-       else if(req.transfer==0)
-            @(posedge vif.drv_cb);
-       prev_transf=req.transfer;
-       ->pass_e;
+    begin
+      $display("WRITE_ADDR = %0d\tWRITE_DATA = %0d",req.apb_write_paddr,req.apb_write_data);
+      vif.transfer<=req.transfer;
+      vif.PRESETn<=req.PRESETn;
+      vif.READ_WRITE<=req.READ_WRITE;
+      vif.apb_write_paddr<=req.apb_write_paddr;
+      vif.apb_write_data<=req.apb_write_data;
+      `uvm_info(get_name,"ACTIVE MON TRIGGERED",UVM_MEDIUM)
+      ->act_e;
+      if(req.transfer==1 &&(!prev_transf))  //IF FIRST TRANSFER, 
+        repeat(3)@(vif.drv_cb);
+      else if(req.transfer==1&&(prev_transf))  //NOT A FIRST TRANSFER  
+        repeat(2)@(vif.drv_cb);
+      else if(req.transfer==0)
+        @(vif.drv_cb);
+      prev_transf=req.transfer;
+      ->pass_e;
+      if(get_report_verbosity_level() >= UVM_MEDIUM)
         `uvm_info(get_name,"PASSIVE MON TRIGGERED",UVM_MEDIUM)
+    end
+    else
+    begin
+      if(get_report_verbosity_level() >= UVM_MEDIUM)
+        $display("READ_ADDR = %0d",req.apb_read_paddr);
+      vif.transfer<=req.transfer;
+      vif.PRESETn<=req.PRESETn;
+      vif.READ_WRITE<=req.READ_WRITE;
+      vif.apb_read_paddr<=req.apb_read_paddr;
+      ->act_e;
+      `uvm_info(get_name,"ACTIVE MON TRIGGERED",UVM_MEDIUM)
+      if(req.transfer==1 &&(!prev_transf))
+        repeat(3)@(vif.drv_cb);
+      else if(req.transfer==1&&(prev_transf))
+        repeat(2)@(vif.drv_cb);
+      else if(req.transfer==0)
+        @(vif.drv_cb);
+      prev_transf=req.transfer;
+      ->pass_e;
+      `uvm_info(get_name,"PASSIVE MON TRIGGERED",UVM_MEDIUM)
      end
   endtask
-  
 endclass

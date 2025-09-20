@@ -25,9 +25,12 @@ class apb_passive_monitor extends uvm_monitor;
    forever 
      begin
        @(pass_e);
-        seq_item.apb_read_data_out = vif.p_mon_cb.apb_read_data_out;
-        seq_item.PSLVERR = vif.p_mon_cb.PSLVERR;
+        seq_item.apb_read_data_out = vif.apb_read_data_out;
+        seq_item.PSLVERR = vif.PSLVERR;
         item_collected_port.write(seq_item);
+        `uvm_info(get_name,"RECIEVED OUTPUT",UVM_MEDIUM)
+        if(get_report_verbosity_level() >= UVM_MEDIUM)
+          $display("READ_DATA_OUT = %0d\tPSLVERR = %0b",seq_item.apb_read_data_out,seq_item.PSLVERR);
     end
   endtask
 endclass
