@@ -1,4 +1,4 @@
-//APB test to start run
+//APB test 
 
 class apb_test extends uvm_test;
   `uvm_component_utils(apb_test)    //Factory Registration
