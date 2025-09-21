@@ -1,12 +1,14 @@
-//need to add a queue to not repeat values while writing
-class apb_write_read_sequence extends uvm_sequence#(apb_sequence_item);
-  `uvm_object_utils(apb_write_read_sequence)
+//Need to add a queue to not repeat values while writing
+//Apb Sequence generates read-write sequences
+
+class apb_write_read_sequence extends uvm_sequence#(apb_sequence_item);    //Generates both write and read transactions alternately
+  `uvm_object_utils(apb_write_read_sequence)    //Factory Registration
   apb_sequence_item seq;
   bit read_prev;
 
   function new(string name = "apb_write_read_sequence");
     super.new(name);
-  endfunction
+  endfunction:new
 
   task body();
     seq = apb_sequence_item::type_id::create("base_sequence_item");
@@ -15,7 +17,7 @@ class apb_write_read_sequence extends uvm_sequence#(apb_sequence_item);
       assert(seq.randomize() with 
       {
         seq.transfer == 1;
-        seq.READ_WRITE != read_prev;
+        seq.READ_WRITE != read_prev;    // alternate read/write
         if(!READ_WRITE)
           seq.apb_read_paddr == seq.apb_write_paddr;
         seq.PRESETn == 1;
@@ -24,21 +26,21 @@ class apb_write_read_sequence extends uvm_sequence#(apb_sequence_item);
         `uvm_fatal(get_name,"RANDOMIZATION FAILED");
       read_prev = seq.READ_WRITE;
       if(seq.READ_WRITE)
-        seq.apb_write_paddr.rand_mode(0);
+        seq.apb_write_paddr.rand_mode(0);     // Freeze addr after write
       else
-        seq.apb_write_paddr.rand_mode(1);
+        seq.apb_write_paddr.rand_mode(1);    // Allow addr change otherwise
       send_request(seq);
       wait_for_item_done();
-    end
-  endtask
-endclass
+    end:repeat
+  endtask:body
+endclass:apb_write_read_sequence
 
-class apb_reset_sequence extends apb_write_read_sequence;
-  `uvm_object_utils(apb_reset_sequence)
+class apb_reset_sequence extends apb_write_read_sequence;    //Generates reset scenarios by de-asserting PRESETn
+  `uvm_object_utils(apb_reset_sequence)    //Factory Registration
 
   function new(string name = "apb_reset_sequence");
     super.new(name);
-  endfunction
+  endfunction:new
 
   task body();
     seq = apb_sequence_item::type_id::create("reset_sequence_item");
@@ -60,17 +62,17 @@ class apb_reset_sequence extends apb_write_read_sequence;
         seq.apb_write_paddr.rand_mode(1);
       send_request(seq);
       wait_for_item_done();
-    end
-  endtask
-endclass
+    end:repeat
+  endtask:body
+endclass:apb_reset_sequence
 
-class apb_read_write_sequence extends apb_write_read_sequence;
-  `uvm_object_utils(apb_read_write_sequence)
+class apb_read_write_sequence extends apb_write_read_sequence;    //- Forces alternate read and write operations at the same address
+  `uvm_object_utils(apb_read_write_sequence)    //Factory Registration
 
   function new(string name = "apb_read_write_sequence");
     super.new(name);
-    read_prev = 1;
-  endfunction
+    read_prev = 1;    //Started with write
+  endfunction:new
 
   task body();
     seq = apb_sequence_item::type_id::create("crnr_sequence_item");
@@ -81,7 +83,7 @@ class apb_read_write_sequence extends apb_write_read_sequence;
         seq.transfer == 1;
         seq.READ_WRITE != read_prev;
         if(READ_WRITE)
-          seq.apb_write_paddr == seq.apb_read_paddr;
+          seq.apb_write_paddr == seq.apb_read_paddr;    // same addr for R/W
         seq.PRESETn == 1;
       })
       else
@@ -93,16 +95,16 @@ class apb_read_write_sequence extends apb_write_read_sequence;
         seq.apb_read_paddr.rand_mode(1);
       send_request(seq);
       wait_for_item_done();
-    end
-  endtask
-endclass
+    end:repeat
+  endtask:body
+endclass:apb_read_write_sequence
 
-class apb_transfer_sequence extends apb_write_read_sequence;
-  `uvm_object_utils(apb_transfer_sequence)
+class apb_transfer_sequence extends apb_write_read_sequence;    //Generates transactions where transfer=0 (no valid transfer)
+  `uvm_object_utils(apb_transfer_sequence)    //Factory Registration
 
   function new(string name = "apb_transfer_sequence");
     super.new(name);
-  endfunction
+  endfunction:new
 
   task body();
     seq = apb_sequence_item::type_id::create("transfer_sequence_item");
@@ -110,7 +112,7 @@ class apb_transfer_sequence extends apb_write_read_sequence;
       wait_for_grant();
       assert(seq.randomize() with 
       {
-        seq.transfer == 0;
+        seq.transfer == 0;    //No transfer
         seq.READ_WRITE != read_prev;
         if(!READ_WRITE)
           seq.apb_read_paddr == seq.apb_write_paddr;
@@ -125,16 +127,16 @@ class apb_transfer_sequence extends apb_write_read_sequence;
         seq.apb_write_paddr.rand_mode(1);
       send_request(seq);
       wait_for_item_done();
-    end
-  endtask
-endclass
+    end:repeat
+  endtask:body
+endclass:apb_transfer_sequence
 
-class apb_write_sequence extends apb_write_read_sequence;
-  `uvm_object_utils(apb_write_sequence)
+class apb_write_sequence extends apb_write_read_sequence;    // Generates only write transactions
+  `uvm_object_utils(apb_write_sequence)    //Factory Registration
 
   function new(string name = "apb_write_sequence");
     super.new(name);
-  endfunction
+  endfunction:new
 
   task body();
     seq = apb_sequence_item::type_id::create("write_sequence_item");
@@ -150,15 +152,15 @@ class apb_write_sequence extends apb_write_read_sequence;
     read_prev = seq.READ_WRITE;
     send_request(seq);
     wait_for_item_done();
-  endtask
-endclass
+  endtask:body
+endclass:apb_write_sequence
 
-class apb_read_sequence extends apb_write_read_sequence;
-  `uvm_object_utils(apb_read_sequence)
+class apb_read_sequence extends apb_write_read_sequence;    //Generates only read transactions
+  `uvm_object_utils(apb_read_sequence)    //Factory Registration
 
   function new(string name = "apb_read_sequence");
     super.new(name);
-  endfunction
+  endfunction:new
 
   task body();
     seq = apb_sequence_item::type_id::create("read_sequence_item");
@@ -166,7 +168,7 @@ class apb_read_sequence extends apb_write_read_sequence;
     assert(seq.randomize() with 
     {
       seq.transfer == 1;
-      seq.READ_WRITE == 0;
+      seq.READ_WRITE == 0;    //Read
       seq.PRESETn == 1;
     })
     else
@@ -174,17 +176,16 @@ class apb_read_sequence extends apb_write_read_sequence;
     read_prev = seq.READ_WRITE;
     send_request(seq);
     wait_for_item_done();
-  endtask
-endclass
+  endtask:body
+endclass:apb_read_sequence
 
-class apb_same_sequence extends apb_write_read_sequence;
-  `uvm_object_utils(apb_same_sequence)
+class apb_same_sequence extends apb_write_read_sequence;    // Generates repeating transactions with the same field values
+  `uvm_object_utils(apb_same_sequence)    //Factory Registration
   bit count;
 
   function new(string name = "apb_same_sequence");
     super.new(name);
-  endfunction
-
+  endfunction:new
 
   task body();
     seq = apb_sequence_item::type_id::create("same_sequence_item");
@@ -200,6 +201,7 @@ class apb_same_sequence extends apb_write_read_sequence;
       else
         `uvm_fatal(get_name,"RANDOMIZATION FAILED");
       $display("read_prev = %0d",read_prev);
+      
       if(count>0)
       begin
         count = 0;
@@ -208,6 +210,7 @@ class apb_same_sequence extends apb_write_read_sequence;
         seq.apb_read_paddr.rand_mode(1);
         read_prev = !seq.READ_WRITE;
       end
+      
       else
       begin
         count = 1;
@@ -215,21 +218,21 @@ class apb_same_sequence extends apb_write_read_sequence;
         seq.apb_write_paddr.rand_mode(0);
         seq.apb_read_paddr.rand_mode(0);
       end
+      
       send_request(seq);
       wait_for_item_done();
-    end
-  endtask
+    end:repeat
+  endtask:body
+endclass:apb_same_sequence 
 
-endclass
-
-class apb_diff_slave_sequence extends apb_write_read_sequence;
-  `uvm_object_utils(apb_diff_slave_sequence)
+class apb_diff_slave_sequence extends apb_write_read_sequence;    //Generates read/write operations to different slaves
+  `uvm_object_utils(apb_diff_slave_sequence)    //Factory Registration
   bit choice,count;
   bit[7:0] prev;
 
   function new(string name = "apb_diff_slave_sequence");
     super.new(name);
-  endfunction
+  endfunction:new
 
   task body();
     seq = apb_sequence_item::type_id::create("diff_slave_sequence_item");
@@ -260,11 +263,11 @@ class apb_diff_slave_sequence extends apb_write_read_sequence;
       end
       send_request(seq);
       wait_for_item_done();
-    end
-  endtask
-endclass
+    end:repeat
+  endtask:body
+endclass:apb_diff_slave_sequence
 
-class apb_regress_sequence extends apb_write_read_sequence;
+class apb_regress_sequence extends apb_write_read_sequence;    //Runs a collection of all sequences for full coverage
   apb_write_read_sequence seq1;
   apb_reset_sequence seq2;
   apb_read_write_sequence seq3;
@@ -277,7 +280,7 @@ class apb_regress_sequence extends apb_write_read_sequence;
 
   function new(string name = "apb_regress_sequence");
     super.new(name);
-  endfunction
+  endfunction:new
 
   task body();
     seq = apb_sequence_item::type_id::create("base_sequence_item");
@@ -289,5 +292,5 @@ class apb_regress_sequence extends apb_write_read_sequence;
     //`uvm_do(seq6)
     //`uvm_do(seq7)
     //`uvm_do(seq8)
-  endtask
-endclass
+  endtask:body
+endclass:apb_regress_sequence
