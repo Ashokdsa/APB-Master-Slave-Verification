@@ -34,5 +34,6 @@ class apb_test extends uvm_test;
     phase.drop_objection(this);
     phase_done.set_drain_time(this,20);
     `uvm_info(get_name,"SEQUENCE ENDED",UVM_NONE)
+    $display("--------------------------------------------------TEST ENDED--------------------------------------------------");
   endtask
 endclass

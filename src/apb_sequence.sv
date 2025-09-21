@@ -9,8 +9,8 @@ class apb_write_read_sequence extends uvm_sequence#(apb_sequence_item);
   endfunction
 
   task body();
+    seq = apb_sequence_item::type_id::create("base_sequence_item");
     repeat(2) begin
-      seq = apb_sequence_item::type_id::create("base_sequence_item");
       wait_for_grant();
       assert(seq.randomize() with 
       {
@@ -23,18 +23,14 @@ class apb_write_read_sequence extends uvm_sequence#(apb_sequence_item);
       else
         `uvm_fatal(get_name,"RANDOMIZATION FAILED");
       read_prev = seq.READ_WRITE;
+      if(seq.READ_WRITE)
+        seq.apb_write_paddr.rand_mode(0);
+      else
+        seq.apb_write_paddr.rand_mode(1);
       send_request(seq);
       wait_for_item_done();
     end
   endtask
-
-
-  function void post_randomize();
-    if(seq.READ_WRITE)
-      seq.apb_write_paddr.rand_mode(0);
-    else
-      seq.apb_write_paddr.rand_mode(1);
-  endfunction
 endclass
 
 class apb_reset_sequence extends apb_write_read_sequence;
@@ -46,27 +42,26 @@ class apb_reset_sequence extends apb_write_read_sequence;
 
   task body();
     seq = apb_sequence_item::type_id::create("reset_sequence_item");
-    wait_for_grant();
-    assert(seq.randomize() with 
-    {
-      seq.transfer == 1;
-      seq.READ_WRITE != read_prev;
-      if(!READ_WRITE)
-        seq.apb_read_paddr == seq.apb_write_paddr;
-    })
-    else
-        `uvm_fatal(get_name,"RANDOMIZATION FAILED");
-    read_prev = seq.READ_WRITE;
-    send_request(seq);
-    wait_for_item_done();
+    repeat(4) begin
+      wait_for_grant();
+      assert(seq.randomize() with 
+      {
+        seq.transfer == 1;
+        seq.READ_WRITE != read_prev;
+        if(!READ_WRITE)
+          seq.apb_read_paddr == seq.apb_write_paddr;
+      })
+      else
+          `uvm_fatal(get_name,"RANDOMIZATION FAILED");
+      read_prev = seq.READ_WRITE;
+      if(seq.READ_WRITE)
+        seq.apb_write_paddr.rand_mode(0);
+      else
+        seq.apb_write_paddr.rand_mode(1);
+      send_request(seq);
+      wait_for_item_done();
+    end
   endtask
-
-  function void post_randomize();
-    if(seq.READ_WRITE)
-      seq.apb_write_paddr.rand_mode(0);
-    else
-      seq.apb_write_paddr.rand_mode(1);
-  endfunction
 endclass
 
 class apb_read_write_sequence extends apb_write_read_sequence;
@@ -91,16 +86,13 @@ class apb_read_write_sequence extends apb_write_read_sequence;
     else
       `uvm_fatal(get_name,"RANDOMIZATION FAILED");
     read_prev = seq.READ_WRITE;
-    send_request(seq);
-    wait_for_item_done();
-  endtask
-
-  function void post_randomize();
     if(!seq.READ_WRITE)
       seq.apb_read_paddr.rand_mode(0);
     else
       seq.apb_read_paddr.rand_mode(1);
-  endfunction
+    send_request(seq);
+    wait_for_item_done();
+  endtask
 endclass
 
 class apb_transfer_sequence extends apb_write_read_sequence;
@@ -124,16 +116,13 @@ class apb_transfer_sequence extends apb_write_read_sequence;
     else
         `uvm_fatal(get_name,"RANDOMIZATION FAILED");
     read_prev = seq.READ_WRITE;
-    send_request(seq);
-    wait_for_item_done();
-  endtask
-
-  function void post_randomize();
     if(seq.READ_WRITE)
       seq.apb_write_paddr.rand_mode(0);
     else
       seq.apb_write_paddr.rand_mode(1);
-  endfunction
+    send_request(seq);
+    wait_for_item_done();
+  endtask
 endclass
 
 class apb_write_sequence extends apb_write_read_sequence;
@@ -158,10 +147,6 @@ class apb_write_sequence extends apb_write_read_sequence;
     send_request(seq);
     wait_for_item_done();
   endtask
-
-  function void post_randomize();
-    seq.apb_write_paddr.rand_mode(1);
-  endfunction
 endclass
 
 class apb_read_sequence extends apb_write_read_sequence;
@@ -186,10 +171,6 @@ class apb_read_sequence extends apb_write_read_sequence;
     send_request(seq);
     wait_for_item_done();
   endtask
-
-  function void post_randomize();
-    seq.apb_write_paddr.rand_mode(1);
-  endfunction
 endclass
 
 class apb_same_sequence extends apb_write_read_sequence;
