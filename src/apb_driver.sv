@@ -18,6 +18,7 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
     
     if(!uvm_config_db#(event)::get(this, "", "ev2", pass_e))
       `uvm_fatal("NO_VIF",{"virtual interface must be set for: ",get_full_name(),".vif"});
+
   endfunction
   
   virtual task run_phase(uvm_phase phase);
@@ -44,12 +45,21 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
       vif.apb_write_data<=req.apb_write_data;
       `uvm_info(get_name,"ACTIVE MON TRIGGERED",UVM_MEDIUM)
       ->act_e;
+      @(vif.drv_cb);
+      if(req.change)
+      begin
+        vif.transfer<=req.transfer;
+        vif.PRESETn<=req.PRESETn;
+        vif.READ_WRITE<=req.READ_WRITE;
+        vif.apb_write_paddr<=req.apb_write_paddr;
+        vif.apb_write_data<=req.apb_write_data;
+        vif.apb_read_paddr<=req.apb_read_paddr;
+        `uvm_info(get_name,"INSERTED ERROR",UVM_MEDIUM);
+      end
       if(req.transfer==1 &&(!prev_transf))  //IF FIRST TRANSFER, 
-        repeat(3)@(vif.drv_cb);
-      else if(req.transfer==1&&(prev_transf))  //NOT A FIRST TRANSFER  
         repeat(2)@(vif.drv_cb);
-      else if(req.transfer==0)
-        @(vif.drv_cb);
+      else if(req.transfer==1&&(prev_transf))  //NOT A FIRST TRANSFER  
+        repeat(1)@(vif.drv_cb);
       prev_transf=req.transfer;
       ->pass_e;
       if(get_report_verbosity_level() >= UVM_MEDIUM)

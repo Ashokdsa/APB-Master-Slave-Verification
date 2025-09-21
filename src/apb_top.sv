@@ -16,6 +16,7 @@ module top;
   
   apb_test test;
   event act_e,pass_e;
+  bit change;
   
   initial begin
     uvm_config_db#(virtual apb_inf)::set(null, "*", "vif", vif);

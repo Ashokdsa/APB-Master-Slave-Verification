@@ -10,6 +10,8 @@ class apb_sequence_item extends uvm_sequence_item;
   //outputs
   bit [7:0] apb_read_data_out;
   bit PSLVERR;
+
+  bit change;
   
   `uvm_object_utils_begin(apb_sequence_item)
   `uvm_field_int(apb_write_data, UVM_ALL_ON)

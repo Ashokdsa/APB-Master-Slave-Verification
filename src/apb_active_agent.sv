@@ -13,7 +13,8 @@ class apb_active_agent extends uvm_agent;
   	endfunction:new
 
   	function void build_phase(uvm_phase phase);
-      uvm_config_db#(uvm_active_passive_enum) :: get(this,"","is_active",is_active);
+      if(!uvm_config_db#(uvm_active_passive_enum) :: get(this,"","is_active",is_active))
+        `uvm_fatal("NO vif","IS_ACTIVE is not defined")
       // If agent is ACTIVE, build driver and sequencer
       if(get_is_active() == UVM_ACTIVE)begin
         driver = apb_driver::type_id::create("driver", this);

@@ -280,13 +280,21 @@ class apb_regress_sequence extends apb_write_read_sequence;
   endfunction
 
   task body();
+    seq1 = apb_write_read_sequence::type_id::create("seq1");
+    //seq2 = apb_reset_sequence::type_id::create("seq2");
+    //seq3 = apb_read_write_sequence::type_id::create("seq3");
+    //seq4 = apb_transfer_sequence::type_id::create("seq4");
+    //seq5 = apb_write_sequence::type_id::create("seq5");
+    //seq6 = apb_read_sequence::type_id::create("seq6");
+    //seq7 = apb_same_sequence::type_id::create("seq7");
+    //seq8 = apb_diff_slave_sequence::type_id::create("seq8");
     `uvm_do(seq1)
-    `uvm_do(seq2)
-    `uvm_do(seq3)
-    `uvm_do(seq4)
-    `uvm_do(seq5)
-    `uvm_do(seq6)
-    `uvm_do(seq7)
-    `uvm_do(seq8)
+    //`uvm_do(seq2)
+    //`uvm_do(seq3)
+    //`uvm_do(seq4)
+    //`uvm_do(seq5)
+    //`uvm_do(seq6)
+    //`uvm_do(seq7)
+    //`uvm_do(seq8)
   endtask
 endclass

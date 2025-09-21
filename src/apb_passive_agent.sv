@@ -8,7 +8,8 @@ class apb_passive_agent extends uvm_agent;
   	endfunction:new
 
   	function void build_phase(uvm_phase phase);
-       uvm_config_db#(uvm_active_passive_enum) :: get(this,"","is_active",is_active);
+      if(!uvm_config_db#(uvm_active_passive_enum) :: get(this,"","is_active",is_active))
+        `uvm_fatal("NO vif","IS_ACTIVE is not defined")
       passive_monitor = apb_passive_monitor::type_id::create("passive_monitor", this);
   	endfunction:build_phase
 endclass:apb_passive_agent

@@ -16,6 +16,7 @@ class apb_test extends uvm_test;
     //apb_write_read_sequence::type_id::set_type_override(apb_read_sequence::get_type());
     //apb_write_read_sequence::type_id::set_type_override(apb_same_sequence::get_type());
     //apb_write_read_sequence::type_id::set_type_override(apb_diff_slave_sequence::get_type());
+    apb_write_read_sequence::type_id::set_type_override(apb_regress_sequence::get_type());
     apb_env = apb_environment::type_id::create("apb_env",this);
   endfunction
 
