@@ -1,28 +1,38 @@
+// APB Interface: defines DUT signal connections, clocking blocks, and protocol assertions
+
 interface apb_inf(input bit clk);
-  //input
+	
+   //------------------------------------------------------------------------------------------
+  // DUT Signal Declarations
+  //------------------------------------------------------------------------------------------
   logic PCLK, PRESETn, transfer, READ_WRITE;
   logic [8:0] apb_write_paddr;
   logic [7:0]apb_write_data;
   logic [8:0] apb_read_paddr;
   logic PSLVERR;
   logic [7:0] apb_read_data_out;
-  
-  clocking drv_cb @(posedge clk);
+
+ //------------------------------------------------------------------------------------------
+  // Clocking Blocks
+  //------------------------------------------------------------------------------------------
+  clocking drv_cb @(posedge clk);	// Driver clocking block
     output PRESETn, transfer, READ_WRITE, apb_write_paddr, apb_read_paddr, apb_write_data;
   endclocking
   
-  clocking p_mon_cb@(posedge clk);
+  clocking p_mon_cb@(posedge clk);	// Passive monitor clocking block
     input PSLVERR, apb_read_data_out;
   endclocking
   
-  clocking a_mon_cb@(posedge clk);
+  clocking a_mon_cb@(posedge clk);	// Active monitor clocking block
 	  output PRESETn, transfer, READ_WRITE, apb_write_paddr, apb_read_paddr, apb_write_data;
   endclocking
   
-  //clock toggle assertion
-  property p1;
+  //------------------------------------------------------------------------------------------
+  // Assertions
+  //------------------------------------------------------------------------------------------
+  property p1;		 // Assertion p1: Check if clock toggles properly
     @(posedge clk) clk != $past(1, clk);
-  endproperty
+  endproperty:p1
   assert property(p1)begin
     //`uvm_info("Pass Toggle CLK");
   end
@@ -30,10 +40,9 @@ interface apb_inf(input bit clk);
     //`uvm_error("Fail Toggle CLK");
   end
   
-  //valid inputs
-  property p2;
+  property p2;		// Assertion p2: Valid input check when transfer is active
     @(posedge clk) transfer |-> not($isunknown({READ_WRITE, apb_write_paddr, apb_read_paddr, apb_write_data}));
-  endproperty
+  endproperty:p2
   assert property(p2)begin
     //`uvm_info("Pass VALID IP");
   end
@@ -41,10 +50,9 @@ interface apb_inf(input bit clk);
     //`uvm_error("Fail VALID IP");
   end
   
-  //PRESETn
-  property p3;
+  property p3;		// Assertion p3: Reset behavior check
     @(posedge clk) !PRESETn |-> (PSLVERR == 0 && apb_read_data_out == 0);
-  endproperty
+  endproperty:p3
   assert property(p3)begin
     //`uvm_info("Pass RESET");
   end
@@ -52,10 +60,9 @@ interface apb_inf(input bit clk);
     //`uvm_error("Fail RESET");
   end
   
-  //SLVERR
-  property p4;
+  property p4;		// Assertion p4: Slave error condition check
     @(posedge clk) transfer |-> (($isunknown(apb_write_data) && READ_WRITE == 1) || ($isunknown(apb_write_paddr) && READ_WRITE == 1) || ($isunknown(apb_read_paddr) && READ_WRITE == 0));
-  endproperty
+  endproperty::p4
   
   assert property(p4)begin
     //`uvm_info("Pass ERR");
@@ -64,4 +71,4 @@ interface apb_inf(input bit clk);
     //`uvm_error("Fail ERR");
   end
     
-endinterface
+endinterface:apb_inf
