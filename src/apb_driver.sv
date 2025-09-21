@@ -51,6 +51,8 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
       @(vif.drv_cb);
       if(req.change)
       begin
+        seq_item_port.item_done();
+        seq_item_port.get_next_item(req); 
         vif.transfer<=req.transfer;
         vif.PRESETn<=req.PRESETn;
         vif.READ_WRITE<=req.READ_WRITE;
