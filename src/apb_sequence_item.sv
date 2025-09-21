@@ -26,5 +26,9 @@ class apb_sequence_item extends uvm_sequence_item;
   `uvm_field_int(apb_read_data_out, UVM_ALL_ON)
   `uvm_field_int(PSLVERR, UVM_ALL_ON)
   `uvm_object_utils_end
+
+  function new(string name = "apb_sequence_item");
+   		 super.new(name);
+ 	 endfunction:new
   
 endclass:apb_sequence_item
