@@ -12,7 +12,7 @@ class apb_write_read_sequence extends uvm_sequence#(apb_sequence_item);    //Gen
 
   task body();
     seq = apb_sequence_item::type_id::create("base_sequence_item");
-    repeat(2) begin
+    repeat(2) begin:repeat_val
       wait_for_grant();
       assert(seq.randomize() with 
       {
@@ -31,7 +31,7 @@ class apb_write_read_sequence extends uvm_sequence#(apb_sequence_item);    //Gen
         seq.apb_write_paddr.rand_mode(1);    // Allow addr change otherwise
       send_request(seq);
       wait_for_item_done();
-    end:repeat
+    end:repeat_val
   endtask:body
 endclass:apb_write_read_sequence
 
@@ -44,7 +44,7 @@ class apb_reset_sequence extends apb_write_read_sequence;    //Generates reset s
 
   task body();
     seq = apb_sequence_item::type_id::create("reset_sequence_item");
-    repeat(4) begin
+    repeat(4) begin:repeat_val
       wait_for_grant();
       assert(seq.randomize() with 
       {
@@ -62,7 +62,7 @@ class apb_reset_sequence extends apb_write_read_sequence;    //Generates reset s
         seq.apb_write_paddr.rand_mode(1);
       send_request(seq);
       wait_for_item_done();
-    end:repeat
+    end:repeat_val
   endtask:body
 endclass:apb_reset_sequence
 
@@ -76,7 +76,7 @@ class apb_read_write_sequence extends apb_write_read_sequence;    //- Forces alt
 
   task body();
     seq = apb_sequence_item::type_id::create("crnr_sequence_item");
-    repeat(3) begin
+    repeat(3) begin:repeat_val
       wait_for_grant();
       assert(seq.randomize() with 
       {
@@ -95,7 +95,7 @@ class apb_read_write_sequence extends apb_write_read_sequence;    //- Forces alt
         seq.apb_read_paddr.rand_mode(1);
       send_request(seq);
       wait_for_item_done();
-    end:repeat
+    end:repeat_val
   endtask:body
 endclass:apb_read_write_sequence
 
@@ -108,7 +108,7 @@ class apb_transfer_sequence extends apb_write_read_sequence;    //Generates tran
 
   task body();
     seq = apb_sequence_item::type_id::create("transfer_sequence_item");
-    repeat(3) begin
+    repeat(3) begin:repeat_val
       wait_for_grant();
       assert(seq.randomize() with 
       {
@@ -127,7 +127,7 @@ class apb_transfer_sequence extends apb_write_read_sequence;    //Generates tran
         seq.apb_write_paddr.rand_mode(1);
       send_request(seq);
       wait_for_item_done();
-    end:repeat
+    end:repeat_val
   endtask:body
 endclass:apb_transfer_sequence
 
@@ -190,7 +190,7 @@ class apb_same_sequence extends apb_write_read_sequence;    // Generates repeati
   task body();
     seq = apb_sequence_item::type_id::create("same_sequence_item");
     read_prev = 1;
-    repeat(4) begin
+    repeat(4) begin:repeat_val
       wait_for_grant();
       assert(seq.randomize() with 
       {
@@ -221,7 +221,7 @@ class apb_same_sequence extends apb_write_read_sequence;    // Generates repeati
       
       send_request(seq);
       wait_for_item_done();
-    end:repeat
+    end:repeat_val
   endtask:body
 endclass:apb_same_sequence 
 
@@ -236,7 +236,7 @@ class apb_diff_slave_sequence extends apb_write_read_sequence;    //Generates re
 
   task body();
     seq = apb_sequence_item::type_id::create("diff_slave_sequence_item");
-    repeat(5) begin
+    repeat(5) begin:repeat_val
       wait_for_grant();
       assert(seq.randomize() with 
       {
@@ -263,7 +263,7 @@ class apb_diff_slave_sequence extends apb_write_read_sequence;    //Generates re
       end
       send_request(seq);
       wait_for_item_done();
-    end:repeat
+    end:repeat_val
   endtask:body
 endclass:apb_diff_slave_sequence
 

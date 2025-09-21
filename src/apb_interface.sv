@@ -62,7 +62,7 @@ interface apb_inf(input bit clk);
   
   property p4;		// Assertion p4: Slave error condition check
     @(posedge clk) transfer |-> (($isunknown(apb_write_data) && READ_WRITE == 1) || ($isunknown(apb_write_paddr) && READ_WRITE == 1) || ($isunknown(apb_read_paddr) && READ_WRITE == 0));
-  endproperty::p4
+  endproperty:p4
   
   assert property(p4)begin
     //`uvm_info("Pass ERR");

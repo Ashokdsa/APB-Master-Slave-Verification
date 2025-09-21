@@ -23,7 +23,7 @@ module top;
   event act_e,pass_e;    // Event handles for synchronization
   bit change;
   
-  initial begin
+  initial begin:setting_vif
     // UVM Configurations setting
     uvm_config_db#(virtual apb_inf)::set(null, "*", "vif", vif);
     uvm_config_db#(event)::set(null, "*", "ev1", act_e);
@@ -31,17 +31,18 @@ module top;
     
     $dumpfile("wave.vcd");
     $dumpvars(0);
-  end:initial
+  end:setting_vif
 
-  initial begin
+  initial begin:initial_reset
     vif.PRESETn = 0;
     @(posedge clk);
     vif.PRESETn = 1;
     @(posedge clk);
-  end:initial
+  end:initial_reset
 
-  initial begin
+  initial begin:test_run
     run_test("apb_test");      // Start UVM test
     $finish;
-  end:initial
+  end:test_run
+
 endmodule:top
