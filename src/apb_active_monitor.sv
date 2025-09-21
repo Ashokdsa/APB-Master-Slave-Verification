@@ -1,9 +1,12 @@
+// APB Active Monitor: Observes DUT signals and publishes transactions
+
 class apb_active_monitor extends uvm_monitor;
-  virtual apb_inf vif;
-  event act_e;
-  uvm_analysis_port #(apb_sequence_item) item_collected_port;
+  virtual apb_inf vif;  // Virtual interface handle for APB interface
+  event act_e;          // Event to trigger sampling
+  uvm_analysis_port #(apb_sequence_item) item_collected_port;    // Analysis port
   apb_sequence_item seq_item;
 
+  // Register this component with UVM factory
   `uvm_component_utils(apb_active_monitor)
 
   function new (string name, uvm_component parent);
@@ -12,6 +15,7 @@ class apb_active_monitor extends uvm_monitor;
     item_collected_port = new("item_collected_port", this);
   endfunction
 
+  // Build phase: get interface and event handles from config DB
   function void build_phase(uvm_phase phase);
     super.build_phase(phase);
     if(!uvm_config_db#(virtual apb_inf)::get(this, "", "vif", vif))
@@ -24,7 +28,7 @@ class apb_active_monitor extends uvm_monitor;
   virtual task run_phase(uvm_phase phase);
    forever 
      begin
-       @(act_e);
+       @(act_e);          //waits for event and samples interface values
        @(vif.a_mon_cb);
         seq_item.transfer = vif.transfer;
         seq_item.PRESETn = vif.PRESETn;
