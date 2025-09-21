@@ -13,7 +13,7 @@ class apb_active_monitor extends uvm_monitor;
     super.new(name, parent);
     seq_item = new();
     item_collected_port = new("item_collected_port", this);
-  endfunction
+  endfunction:new
 
   // Build phase: get interface and event handles from config DB
   function void build_phase(uvm_phase phase);
@@ -23,7 +23,7 @@ class apb_active_monitor extends uvm_monitor;
     
     if(!uvm_config_db#(event)::get(this, "", "ev1", act_e))
        `uvm_fatal("NOVIF",{"virtual interface must be set for: ",get_full_name(),".vif"});
-  endfunction
+  endfunction:build_phase
 
   virtual task run_phase(uvm_phase phase);
    forever 
@@ -56,6 +56,6 @@ class apb_active_monitor extends uvm_monitor;
 //          @(posedge vif.MON.CLK);
 //        prev_transf=seq.transfer;
     end
-  endtask
-endclass
+  endtask:run_phase
+endclass:apb_active_monitor
     
