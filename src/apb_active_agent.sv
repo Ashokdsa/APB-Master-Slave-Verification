@@ -1,9 +1,11 @@
+// Active APB agent class which instantiates driver, sequencer and active monitor
 
 class apb_active_agent extends uvm_agent;
   	apb_driver    driver;
   	apb_sequencer sequencer;
   	apb_active_monitor   active_monitor;
-
+  
+  // Register this component with UVM factory
   `uvm_component_utils(apb_active_agent)
 
   function new (string name = "apb_active_agent", uvm_component parent);
@@ -12,10 +14,12 @@ class apb_active_agent extends uvm_agent;
 
   	function void build_phase(uvm_phase phase);
       uvm_config_db#(uvm_active_passive_enum) :: get(this,"","is_active",is_active);
+      // If agent is ACTIVE, build driver and sequencer
       if(get_is_active() == UVM_ACTIVE)begin
         driver = apb_driver::type_id::create("driver", this);
       	sequencer = apb_sequencer::type_id::create("sequencer", this);
       end
+      // Monitor is created in both ACTIVE and PASSIVE modes
       active_monitor = apb_active_monitor::type_id::create("monitor", this);
   	endfunction:build_phase
 
