@@ -25,6 +25,7 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
     @(vif.drv_cb);
     forever begin
       seq_item_port.get_next_item(req); 
+      $display("SEQ ENTERED DRIVER");
       drive();
       seq_item_port.item_done();
     end
