@@ -1,6 +1,9 @@
-class apb_passive_agent extends uvm_agent;
-  	apb_passive_monitor  passive_monitor;
+// Passive APB agent class which instantiates only passive monitor
 
+class apb_passive_agent extends uvm_agent;
+  	apb_passive_monitor  passive_monitor;    // Passive monitor instance declaration
+
+    // Registering the component with the factory
   `uvm_component_utils(apb_passive_agent)
 
   function new (string name = "apb_passive_agent", uvm_component parent);
