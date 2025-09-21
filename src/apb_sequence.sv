@@ -389,7 +389,7 @@ endclass:apb_one_clock_sequence
 */
 
 class apb_regress_sequence extends apb_base_sequence;    //Runs a collection of all sequences for full coverage
-  apb_write_read_sequence#(512) seq1;
+  apb_write_read_sequence#(1024) seq1;
   apb_reset_sequence#(4) seq2;
   apb_read_write_sequence#(2) seq3;
   apb_transfer_sequence#(3) seq4;

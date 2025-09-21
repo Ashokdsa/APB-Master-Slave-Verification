@@ -112,6 +112,7 @@ class apb_scoreboard extends uvm_scoreboard;
     bit data_match;
     super.run_phase(phase);
       forever begin
+        `uvm_info("APB_SCB", $sformatf("--\t%0d\t--", compares_total+1), UVM_LOW)
         wait(ref_queue.size() > 0 && mon_queue.size() > 0);		// Wait until both queues have data
 
         ref_seq_out = ref_queue.pop_front();
@@ -137,10 +138,11 @@ class apb_scoreboard extends uvm_scoreboard;
   endtask:run_phase
 
  //Reprot summary
-  virtual function void end_of_simulation();
+  virtual function void report_phase(uvm_phase phase);
+    super.report_phase(phase);
     `uvm_info("APB_SCB_SUM", $sformatf("COMPARES total=%0d pass=%0d fail=%0d refq_left=%0d monq_left=%0d",
                 compares_total, compares_pass, compares_fail,
                 ref_queue.size(), mon_queue.size()), UVM_LOW)
-  endfunction:end_of_simulation
+  endfunction:report_phase
 
 endclass:apb_scoreboard
