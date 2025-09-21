@@ -74,24 +74,26 @@ class apb_read_write_sequence extends apb_write_read_sequence;
 
   task body();
     seq = apb_sequence_item::type_id::create("crnr_sequence_item");
-    wait_for_grant();
-    assert(seq.randomize() with 
-    {
-      seq.transfer == 1;
-      seq.READ_WRITE != read_prev;
-      if(READ_WRITE)
-        seq.apb_write_paddr == seq.apb_read_paddr;
-      seq.PRESETn == 1;
-    })
-    else
-      `uvm_fatal(get_name,"RANDOMIZATION FAILED");
-    read_prev = seq.READ_WRITE;
-    if(!seq.READ_WRITE)
-      seq.apb_read_paddr.rand_mode(0);
-    else
-      seq.apb_read_paddr.rand_mode(1);
-    send_request(seq);
-    wait_for_item_done();
+    repeat(3) begin
+      wait_for_grant();
+      assert(seq.randomize() with 
+      {
+        seq.transfer == 1;
+        seq.READ_WRITE != read_prev;
+        if(READ_WRITE)
+          seq.apb_write_paddr == seq.apb_read_paddr;
+        seq.PRESETn == 1;
+      })
+      else
+        `uvm_fatal(get_name,"RANDOMIZATION FAILED");
+      read_prev = seq.READ_WRITE;
+      if(!seq.READ_WRITE)
+        seq.apb_read_paddr.rand_mode(0);
+      else
+        seq.apb_read_paddr.rand_mode(1);
+      send_request(seq);
+      wait_for_item_done();
+    end
   endtask
 endclass
 
@@ -104,24 +106,26 @@ class apb_transfer_sequence extends apb_write_read_sequence;
 
   task body();
     seq = apb_sequence_item::type_id::create("transfer_sequence_item");
-    wait_for_grant();
-    assert(seq.randomize() with 
-    {
-      seq.transfer == 0;
-      seq.READ_WRITE != read_prev;
-      if(!READ_WRITE)
-        seq.apb_read_paddr == seq.apb_write_paddr;
-      seq.PRESETn == 1;
-    })
-    else
-        `uvm_fatal(get_name,"RANDOMIZATION FAILED");
-    read_prev = seq.READ_WRITE;
-    if(seq.READ_WRITE)
-      seq.apb_write_paddr.rand_mode(0);
-    else
-      seq.apb_write_paddr.rand_mode(1);
-    send_request(seq);
-    wait_for_item_done();
+    repeat(3) begin
+      wait_for_grant();
+      assert(seq.randomize() with 
+      {
+        seq.transfer == 0;
+        seq.READ_WRITE != read_prev;
+        if(!READ_WRITE)
+          seq.apb_read_paddr == seq.apb_write_paddr;
+        seq.PRESETn == 1;
+      })
+      else
+          `uvm_fatal(get_name,"RANDOMIZATION FAILED");
+      read_prev = seq.READ_WRITE;
+      if(seq.READ_WRITE)
+        seq.apb_write_paddr.rand_mode(0);
+      else
+        seq.apb_write_paddr.rand_mode(1);
+      send_request(seq);
+      wait_for_item_done();
+    end
   endtask
 endclass
 
@@ -175,48 +179,53 @@ endclass
 
 class apb_same_sequence extends apb_write_read_sequence;
   `uvm_object_utils(apb_same_sequence)
+  bit count;
 
   function new(string name = "apb_same_sequence");
     super.new(name);
   endfunction
 
+
   task body();
     seq = apb_sequence_item::type_id::create("same_sequence_item");
-    wait_for_grant();
-    assert(seq.randomize() with 
-    {
-      seq.transfer == 1;
-      seq.PRESETn == 1;
-    })
-    else
+    read_prev = 1;
+    repeat(4) begin
+      wait_for_grant();
+      assert(seq.randomize() with 
+      {
+        seq.transfer == 1;
+        seq.PRESETn == 1;
+        seq.READ_WRITE == read_prev;
+      })
+      else
         `uvm_fatal(get_name,"RANDOMIZATION FAILED");
-    read_prev = seq.READ_WRITE;
-    send_request(seq);
-    wait_for_item_done();
+      $display("read_prev = %0d",read_prev);
+      if(count>0)
+      begin
+        count = 0;
+        seq.READ_WRITE.rand_mode(1);
+        seq.apb_write_paddr.rand_mode(1);
+        seq.apb_read_paddr.rand_mode(1);
+        read_prev = !seq.READ_WRITE;
+      end
+      else
+      begin
+        count = 1;
+        seq.READ_WRITE.rand_mode(0);
+        seq.apb_write_paddr.rand_mode(0);
+        seq.apb_read_paddr.rand_mode(0);
+      end
+      send_request(seq);
+      wait_for_item_done();
+    end
   endtask
 
-  bit count;
-
-  function void post_randomize();
-    if(count>0)
-    begin
-      count = 0;
-      seq.READ_WRITE.rand_mode(1);
-      seq.apb_write_paddr.rand_mode(1);
-      seq.apb_read_paddr.rand_mode(1);
-    end
-    else
-    begin
-      count++;
-      seq.READ_WRITE.rand_mode(0);
-      seq.apb_write_paddr.rand_mode(0);
-      seq.apb_read_paddr.rand_mode(0);
-    end
-  endfunction
 endclass
 
 class apb_diff_slave_sequence extends apb_write_read_sequence;
   `uvm_object_utils(apb_diff_slave_sequence)
+  bit choice,count;
+  bit[7:0] prev;
 
   function new(string name = "apb_diff_slave_sequence");
     super.new(name);
@@ -224,39 +233,35 @@ class apb_diff_slave_sequence extends apb_write_read_sequence;
 
   task body();
     seq = apb_sequence_item::type_id::create("diff_slave_sequence_item");
-    wait_for_grant();
-    assert(seq.randomize() with 
-    {
-      seq.transfer == 1;
-      seq.PRESETn == 1;
-      seq.apb_write_paddr[8] != choice && seq.apb_read_paddr[8] != choice;
-      if(count)
-        seq.apb_write_paddr[7:0] == prev && seq.apb_read_paddr[7:0] == prev;
-    })
-    else
-        `uvm_fatal(get_name,"RANDOMIZATION FAILED");
-    read_prev = seq.READ_WRITE;
-    send_request(seq);
-    wait_for_item_done();
+    repeat(5) begin
+      wait_for_grant();
+      assert(seq.randomize() with 
+      {
+        seq.transfer == 1;
+        seq.PRESETn == 1;
+        seq.apb_write_paddr[8] != choice && seq.apb_read_paddr[8] != choice;
+        seq.apb_write_paddr == seq.apb_read_paddr;
+        if(count)
+          seq.apb_write_paddr[7:0] == prev && seq.apb_read_paddr[7:0] == prev;
+      })
+      else
+          `uvm_fatal(get_name,"RANDOMIZATION FAILED");
+      choice = seq.READ_WRITE ? seq.apb_write_paddr[8] : seq.apb_read_paddr[8];
+      if(count>0)
+      begin
+        count = 0;
+        seq.READ_WRITE.rand_mode(1);
+      end
+      else
+      begin
+        prev = seq.apb_write_paddr;
+        count++;
+        seq.READ_WRITE.rand_mode(0);
+      end
+      send_request(seq);
+      wait_for_item_done();
+    end
   endtask
-
-  bit choice,count;
-  bit[7:0] prev;
-
-  function void post_randomize();
-    choice = seq.READ_WRITE ? seq.apb_write_paddr[8] : seq.apb_read_paddr[8];
-    if(count>0)
-    begin
-      count = 0;
-      seq.READ_WRITE.rand_mode(1);
-    end
-    else
-    begin
-      prev = 
-      count++;
-      seq.READ_WRITE.rand_mode(0);
-    end
-  endfunction
 endclass
 
 class apb_regress_sequence extends apb_write_read_sequence;
@@ -284,8 +289,4 @@ class apb_regress_sequence extends apb_write_read_sequence;
     `uvm_do(seq7)
     `uvm_do(seq8)
   endtask
-
-  function void post_randomize();
-    $display("nothing same");
-  endfunction
 endclass

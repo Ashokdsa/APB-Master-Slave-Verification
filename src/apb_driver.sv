@@ -36,7 +36,7 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
       $display("SYSTEM BUS SIGNALS: transfer = %0b PRESETn = %0b\nMAIN:\nREAD_WRITE = %0b",req.transfer,req.PRESETn,req.READ_WRITE);
     if(req.READ_WRITE)
     begin
-      $display("WRITE_ADDR = %0d\tWRITE_DATA = %0d",req.apb_write_paddr,req.apb_write_data);
+      $display("WRITE_ADDR = %0d\tbin = %9b\nWRITE_DATA = %0d",req.apb_write_paddr,req.apb_write_paddr,req.apb_write_data);
       vif.transfer<=req.transfer;
       vif.PRESETn<=req.PRESETn;
       vif.READ_WRITE<=req.READ_WRITE;
@@ -58,7 +58,7 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
     else
     begin
       if(get_report_verbosity_level() >= UVM_MEDIUM)
-        $display("READ_ADDR = %0d",req.apb_read_paddr);
+        $display("READ_ADDR = %0d\tbin = %9b",req.apb_read_paddr,req.apb_read_paddr);
       vif.transfer<=req.transfer;
       vif.PRESETn<=req.PRESETn;
       vif.READ_WRITE<=req.READ_WRITE;

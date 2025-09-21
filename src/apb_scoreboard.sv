@@ -125,12 +125,12 @@ class apb_scoreboard extends uvm_scoreboard;
         PSLVERR_match = (ref_seq_out.PSLVERR === mon_seq_out.PSLVERR); // no need to compare
         data_match    = (ref_seq_out.apb_read_data_out === mon_seq_out.apb_read_data_out);
 
-        if (PSLVERR_match && data_match) 
+        if (PSLVERR_match && data_match && ref_seq_out.transfer) 
           begin
           compares_pass++;
             `uvm_info("APB_SCB", $sformatf("COMPARE PASS: ref=%0d dut=%0d", ref_seq_out.apb_read_data_out, mon_seq_out.apb_read_data_out), UVM_LOW)
           end 
-        else 
+        else if(ref_seq_out.transfer) 
           begin
             compares_fail++;
             `uvm_error("APB_SCB", $sformatf("COMPARE FAIL\n  REF: %0d\n  DUT: %0d",
