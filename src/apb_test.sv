@@ -3,7 +3,7 @@
 class apb_test extends uvm_test;
   `uvm_component_utils(apb_test)    //Factory Registration
   apb_environment apb_env;
-  apb_write_read_sequence base;
+  apb_base_sequence base;
 
   function new(string name = "apb_test",uvm_component parent = null);
     super.new(name,parent);
@@ -11,14 +11,15 @@ class apb_test extends uvm_test;
 
   function void build_phase(uvm_phase phase);
     super.build_phase(phase);
-    //apb_write_read_sequence::type_id::set_type_override(apb_reset_sequence::get_type());
-    //apb_write_read_sequence::type_id::set_type_override(apb_read_write_sequence::get_type());
-    //apb_write_read_sequence::type_id::set_type_override(apb_transfer_sequence::get_type());
-    //apb_write_read_sequence::type_id::set_type_override(apb_write_sequence::get_type());
-    //apb_write_read_sequence::type_id::set_type_override(apb_read_sequence::get_type());
-    //apb_write_read_sequence::type_id::set_type_override(apb_same_sequence::get_type());
-    //apb_write_read_sequence::type_id::set_type_override(apb_diff_slave_sequence::get_type());
-    //apb_write_read_sequence::type_id::set_type_override(apb_regress_sequence::get_type());
+    //apb_base_sequence::type_id::set_type_override(apb_write_read_sequence#(2)::get_type());
+    //apb_base_sequence::type_id::set_type_override(apb_reset_sequence#(2)::get_type());
+    //apb_base_sequence::type_id::set_type_override(apb_read_write_sequence#(2)::get_type());
+    //apb_base_sequence::type_id::set_type_override(apb_transfer_sequence#(2)::get_type());
+    //apb_base_sequence::type_id::set_type_override(apb_write_sequence#(2)::get_type());
+    //apb_base_sequence::type_id::set_type_override(apb_read_sequence#(2)::get_type());
+    //apb_base_sequence::type_id::set_type_override(apb_same_sequence#(2)::get_type());
+    //apb_base_sequence::type_id::set_type_override(apb_diff_slave_sequence#(2)::get_type());
+    apb_base_sequence::type_id::set_type_override(apb_regress_sequence::get_type());
     apb_env = apb_environment::type_id::create("apb_env",this);
   endfunction:build_phase
 
@@ -31,7 +32,7 @@ class apb_test extends uvm_test;
     super.run_phase(phase);
     phase.raise_objection(this);    //Raise Objection
       `uvm_info(get_name,"SEQUENCE STARTED",UVM_NONE)
-      base = apb_write_read_sequence::type_id::create("apb_sequence");    // Create and start the sequence dynamically
+      base = apb_base_sequence::type_id::create("apb_sequence");    // Create and start the sequence dynamically
       base.start(apb_env.active_agent.sequencer);
     phase.drop_objection(this);    //Drop Objection
     phase_done.set_drain_time(this,20);    // Drain time before dropping objection

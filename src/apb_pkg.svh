@@ -1,6 +1,8 @@
 `include "uvm_macros.svh"
 
 package apb_pkg;
+  `include "uvm_macros.svh"
+  import uvm_pkg::*;
   `include "apb_sequence_item.sv"
   `include "apb_sequence.sv"
   `include "apb_sequencer.sv"

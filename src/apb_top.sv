@@ -1,10 +1,9 @@
 // Top-level module for APB UVM testbench
 
-`include "uvm_macros.svh"
-import uvm_pkg::*;
-`include "apb_pkg.svh"
-import apb_pkg::*;
 `include "apb_interface.sv"
+`include "apb_pkg.svh"
+import uvm_pkg::*;
+import apb_pkg::*;
 `include "/fetools/work_area/frontend/Batch_10/APB_project/apbtop.v"
 
 module top;

@@ -28,7 +28,6 @@ class apb_active_agent extends uvm_agent;
       if(get_is_active() == UVM_ACTIVE)
       begin
         driver.seq_item_port.connect(sequencer.seq_item_export);
-        $display("CONNECT DONE");
       end
   	endfunction:connect_phase
 

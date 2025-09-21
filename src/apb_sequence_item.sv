@@ -1,6 +1,5 @@
 //APB sequence item 
 
-import uvm_pkg::*;
 class apb_sequence_item extends uvm_sequence_item;
   // Inputs to DUT
   rand bit [7:0] apb_write_data;
