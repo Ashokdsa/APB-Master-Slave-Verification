@@ -1,18 +1,18 @@
-// Code your testbench here
-// or browse Examples
-`uvm_analysis_imp_decl(_passive)
-`uvm_analysis_imp_decl(_active)
+// APB Scoreboard collects transactions from both active and passive monitors via analysis imps.
+
+`uvm_analysis_imp_decl(_passive)		//Analysis ipmlementation port declaration-passive monitor
+`uvm_analysis_imp_decl(_active)			//Analysis ipmlementation port declaration-active monitor
 
 class apb_scoreboard extends uvm_scoreboard;
   `uvm_component_utils(apb_scoreboard)
 
-  // Two analysis imps
+  // Analysis implementation ports to receive transactions from monitors
   uvm_analysis_imp_active #(apb_sequence_item, apb_scoreboard) active_mon_export;
   uvm_analysis_imp_passive #(apb_sequence_item, apb_scoreboard) passive_mon_export;
 
   // Queues for reference and dut outputs
-  apb_sequence_item ref_queue[$];   // reference model results  come back later 
-  apb_sequence_item mon_queue[$];   // dut monitor results
+  apb_sequence_item ref_queue[$];   // Expected transactions from reference model
+  apb_sequence_item mon_queue[$];   // Actual DUT outputs from passive monitor
 
   // Slave memories (based on 9th bit of address)
   logic [7:0] slave1_mem [0:255];
@@ -26,15 +26,13 @@ class apb_scoreboard extends uvm_scoreboard;
   apb_sequence_item rs_out;
 //   apb_sequence_item prev_ref_out;  // not sure about this
 
-  // Stats
+  // Stat Counters
   int unsigned compares_total;
   int unsigned compares_pass;
   int unsigned compares_fail;
 
-  // Constructor
   function new(string name="apb_scoreboard", uvm_component parent = null);
     super.new(name, parent);
-
     active_mon_export  = new("active_mon_export",  this);
     passive_mon_export = new("passive_mon_export", this);
 
@@ -50,24 +48,24 @@ class apb_scoreboard extends uvm_scoreboard;
     compares_total = 0;
     compares_pass  = 0;
     compares_fail  = 0;
-  endfunction
+  endfunction:new
 
-//write method for the passive monitor 
+//Write method for the passive monitor 
   virtual function void write_active(apb_sequence_item item); 
-    rs_in.copy(item); // copy passive monitor transaction into ref_seq_in
+	rs_in.copy(item); // Copy passive monitor transaction into ref_seq_in
     reference_model();
-    if (rs_in.READ_WRITE == 0)  // only push while reading 
+	if (rs_in.READ_WRITE == 0)  // Only push while reading 
       ref_queue.push_back(rs_out);
-  endfunction
+  endfunction:write_active
 
- // write method for the active monitor 
+ // Write method for the active monitor 
   virtual function void write_passive(apb_sequence_item item1);
-    mon_seq_out.copy(item1); // copy active monitor transaction into mon_seq_out
-    mon_queue.push_back(mon_seq_out);  /// check if this is neccessary
-  endfunction
+	mon_seq_out.copy(item1); // Copy active monitor transaction into mon_seq_out
+	mon_queue.push_back(mon_seq_out);  // check if this is neccessary
+  endfunction:write_passive
 
 
-// reference model 
+// Reference model 
   task reference_model();
 	bit slave_sel;
     int unsigned idx;
@@ -92,7 +90,7 @@ class apb_scoreboard extends uvm_scoreboard;
         		  slave1_mem[idx] = rs_in.apb_write_data;
       		    else
         		  slave2_mem[idx] = rs_in.apb_write_data;
-                rs_out.PSLVERR=1'b0;   // not sure about this PSLVERR
+                rs_out.PSLVERR=1'b0;   // Not sure about this PSLVERR
               end
             else 
               begin
@@ -102,27 +100,25 @@ class apb_scoreboard extends uvm_scoreboard;
         		  rs_out.apb_read_data_out = slave1_mem[idx];
       			else
         		  rs_out.apb_read_data_out = slave2_mem[idx];
-      			rs_out.PSLVERR = 1'b0;// not sure about the PSLVERR 
+      			rs_out.PSLVERR = 1'b0;// Not sure about the PSLVERR 
     		 end
           end
       end
     
-  endtask
+  endtask:reference_model
 
- // run phase to compare the ref out and the mon out 
   task run_phase(uvm_phase phase);
     bit PSLVERR_match;
     bit data_match;
     super.run_phase(phase);
       forever begin
-      // Wait until both queues have data
-        wait(ref_queue.size() > 0 && mon_queue.size() > 0);
+        wait(ref_queue.size() > 0 && mon_queue.size() > 0);		// Wait until both queues have data
 
         ref_seq_out = ref_queue.pop_front();
         mon_seq_out = mon_queue.pop_front();
         compares_total++;
 
-        PSLVERR_match = (ref_seq_out.PSLVERR === mon_seq_out.PSLVERR); // no need to compare
+        PSLVERR_match = (ref_seq_out.PSLVERR === mon_seq_out.PSLVERR);
         data_match    = (ref_seq_out.apb_read_data_out === mon_seq_out.apb_read_data_out);
 
         if (PSLVERR_match && data_match && ref_seq_out.transfer) 
@@ -138,13 +134,13 @@ class apb_scoreboard extends uvm_scoreboard;
           end
       end
     
-  endtask
+  endtask:run_phase
 
- //reprot summary
+ //Reprot summary
   virtual function void end_of_simulation();
     `uvm_info("APB_SCB_SUM", $sformatf("COMPARES total=%0d pass=%0d fail=%0d refq_left=%0d monq_left=%0d",
                 compares_total, compares_pass, compares_fail,
                 ref_queue.size(), mon_queue.size()), UVM_LOW)
-  endfunction
+  endfunction:end_of_simulation
 
-endclass
+endclass:apb_scoreboard
