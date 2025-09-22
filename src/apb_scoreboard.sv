@@ -50,17 +50,17 @@ class apb_scoreboard extends uvm_scoreboard;
     compares_fail  = 0;
   endfunction:new
 
-//Write method for the passive monitor 
+//Write method for the active monitor 
   virtual function void write_active(apb_sequence_item item); 
-	rs_in.copy(item); // Copy passive monitor transaction into ref_seq_in
+	  rs_in.copy(item); // Copy active monitor transaction into ref_seq_in
     reference_model();
 	if (rs_in.READ_WRITE == 0)  // Only push while reading 
       ref_queue.push_back(rs_out);
   endfunction:write_active
 
- // Write method for the active monitor 
+ // Write method for the passive monitor 
   virtual function void write_passive(apb_sequence_item item1);
-	mon_seq_out.copy(item1); // Copy active monitor transaction into mon_seq_out
+	mon_seq_out.copy(item1); // Copy passive monitor transaction into mon_seq_out
 	mon_queue.push_back(mon_seq_out);  // check if this is neccessary
   endfunction:write_passive
 
