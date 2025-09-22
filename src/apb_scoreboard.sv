@@ -54,7 +54,7 @@ class apb_scoreboard extends uvm_scoreboard;
   virtual function void write_active(apb_sequence_item item); 
 	  rs_in.copy(item); // Copy active monitor transaction into ref_seq_in
     reference_model();
-	if (rs_in.READ_WRITE == 0)  // Only push while reading 
+	if (rs_in.READ_WRITE)  // Only push while reading 
       ref_queue.push_back(rs_out);
   endfunction:write_active
 
@@ -83,7 +83,7 @@ class apb_scoreboard extends uvm_scoreboard;
       begin
      	if (rs_in.transfer) 
           begin
-            if (rs_in.READ_WRITE) 
+            if (!rs_in.READ_WRITE) 
               begin
       			slave_sel = rs_in.apb_write_paddr[8];
       			idx = rs_in.apb_write_paddr[7:0];
