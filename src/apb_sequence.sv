@@ -29,13 +29,14 @@ class apb_write_read_sequence#(int val = 2) extends apb_base_sequence;    //Gene
 
   task body();
     seq = apb_sequence_item::type_id::create("base_sequence_item");
+    read_prev = 1;
     repeat(val) begin:repeat_val
       wait_for_grant();
       assert(seq.randomize() with 
       {
         seq.transfer == 1;
         seq.READ_WRITE != read_prev;    // alternate read/write
-        if(!READ_WRITE)
+        if(READ_WRITE)
           seq.apb_read_paddr == seq.apb_write_paddr;
         else
           foreach(qu[i])
@@ -45,7 +46,7 @@ class apb_write_read_sequence#(int val = 2) extends apb_base_sequence;    //Gene
       else
         `uvm_fatal(get_name,"RANDOMIZATION FAILED");
       read_prev = seq.READ_WRITE;
-      if(seq.READ_WRITE)
+      if(!seq.READ_WRITE)
       begin
         seq.apb_write_paddr.rand_mode(0);     // Freeze addr after write
       end
@@ -69,13 +70,14 @@ class apb_reset_sequence#(int val = 2) extends apb_base_sequence;    //Generates
 
   task body();
     seq = apb_sequence_item::type_id::create("reset_sequence_item");
+    read_prev = 1;
     repeat(val) begin:repeat_val
       wait_for_grant();
       assert(seq.randomize() with 
       {
         seq.transfer == 1;
         seq.READ_WRITE != read_prev;
-        if(!READ_WRITE)
+        if(READ_WRITE)
           seq.apb_read_paddr == seq.apb_write_paddr;
         else
           foreach(qu[i])
@@ -84,7 +86,7 @@ class apb_reset_sequence#(int val = 2) extends apb_base_sequence;    //Generates
       else
           `uvm_fatal(get_name,"RANDOMIZATION FAILED");
       read_prev = seq.READ_WRITE;
-      if(seq.READ_WRITE)
+      if(!seq.READ_WRITE)
         seq.apb_write_paddr.rand_mode(0);
       else
       begin
@@ -102,7 +104,6 @@ class apb_read_write_sequence#(int val = 2) extends apb_base_sequence;    //- Fo
 
   function new(string name = "apb_read_write_sequence");
     super.new(name);
-    read_prev = 1;    //Started with read
   endfunction:new
 
   task body();
@@ -113,7 +114,7 @@ class apb_read_write_sequence#(int val = 2) extends apb_base_sequence;    //- Fo
       {
         seq.transfer == 1;
         seq.READ_WRITE != read_prev;
-        if(READ_WRITE)
+        if(!READ_WRITE)
           seq.apb_write_paddr == seq.apb_read_paddr;    // same addr for R/W
         else
           foreach(qu[i])
@@ -123,7 +124,7 @@ class apb_read_write_sequence#(int val = 2) extends apb_base_sequence;    //- Fo
       else
         `uvm_fatal(get_name,"RANDOMIZATION FAILED");
       read_prev = seq.READ_WRITE;
-      if(!seq.READ_WRITE)
+      if(seq.READ_WRITE)
         seq.apb_read_paddr.rand_mode(0);
       else
       begin
@@ -141,6 +142,7 @@ class apb_transfer_sequence#(int val = 2) extends apb_base_sequence;    //Genera
 
   function new(string name = "apb_transfer_sequence");
     super.new(name);
+    read_prev = 1;    //Started with read
   endfunction:new
 
   task body();
@@ -151,7 +153,7 @@ class apb_transfer_sequence#(int val = 2) extends apb_base_sequence;    //Genera
       {
         seq.transfer == 0;    //No transfer
         seq.READ_WRITE != read_prev;
-        if(!READ_WRITE)
+        if(READ_WRITE)
           seq.apb_read_paddr == seq.apb_write_paddr;
         else
           foreach(qu[i])
@@ -161,7 +163,7 @@ class apb_transfer_sequence#(int val = 2) extends apb_base_sequence;    //Genera
       else
           `uvm_fatal(get_name,"RANDOMIZATION FAILED");
       read_prev = seq.READ_WRITE;
-      if(seq.READ_WRITE)
+      if(!seq.READ_WRITE)
         seq.apb_write_paddr.rand_mode(0);
       else
       begin
@@ -188,7 +190,7 @@ class apb_write_sequence#(int val = 1) extends apb_base_sequence;    // Generate
       assert(seq.randomize() with 
       {
         seq.transfer == 1;
-        seq.READ_WRITE == 1;
+        seq.READ_WRITE == 0;
         seq.PRESETn == 1;
         foreach(qu[i])
           seq.apb_write_paddr != qu[i];
@@ -216,7 +218,7 @@ class apb_read_sequence#(int val = 1) extends apb_base_sequence;    //Generates 
       assert(seq.randomize() with 
       {
         seq.transfer == 1;
-        seq.READ_WRITE == 0;    //Read
+        seq.READ_WRITE == 1;    //Read
         seq.PRESETn == 1;
         foreach(qu[i])
           seq.apb_read_paddr != qu[i];

@@ -40,15 +40,15 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
       $display("SYSTEM BUS SIGNALS: transfer = %0b PRESETn = %0b\nMAIN:\nREAD_WRITE = %0b",req.transfer,req.PRESETn,req.READ_WRITE);
     if(req.READ_WRITE)    // Check if operation is WRITE
     begin
-      $display("WRITE_ADDR = %0d\tbin = %9b\nWRITE_DATA = %0d",req.apb_write_paddr,req.apb_write_paddr,req.apb_write_data);
+      if(get_report_verbosity_level() >= UVM_MEDIUM)
+        $display("READ_ADDR = %0d\tbin = %9b",req.apb_read_paddr,req.apb_read_paddr);
       vif.transfer<=req.transfer;
       vif.PRESETn<=req.PRESETn;
       vif.READ_WRITE<=req.READ_WRITE;
-      vif.apb_write_paddr<=req.apb_write_paddr;
-      vif.apb_write_data<=req.apb_write_data;
+      vif.apb_read_paddr<=req.apb_read_paddr;
       `uvm_info(get_name,"ACTIVE MON TRIGGERED",UVM_MEDIUM)
       ->act_e;          // Trigger active monitor
-      @(vif.drv_cb);
+      repeat(2)@(vif.drv_cb);
       // if(req.change)
       // begin
       //   seq_item_port.item_done();
@@ -61,10 +61,9 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
       //   vif.apb_read_paddr<=req.apb_read_paddr;
       //   `uvm_info(get_name,"INSERTED ERROR",UVM_MEDIUM);
       // end
-      if(req.transfer==1 &&(!prev_transf))  //IF FIRST TRANSFER, 
-        repeat(2)@(vif.drv_cb);
+      /*if(req.transfer==1 &&(!prev_transf))  //IF FIRST TRANSFER, 
       else if(req.transfer==1&&(prev_transf))  //NOT A FIRST TRANSFER  
-        repeat(1)@(vif.drv_cb);
+        repeat(1)@(vif.drv_cb);*/
       prev_transf=req.transfer;
       ->pass_e;            // Trigger passive monitor
       if(get_report_verbosity_level() >= UVM_MEDIUM)
@@ -72,19 +71,19 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
     end
     else      // Drive read signals
     begin
-      if(get_report_verbosity_level() >= UVM_MEDIUM)
-        $display("READ_ADDR = %0d\tbin = %9b",req.apb_read_paddr,req.apb_read_paddr);
+      $display("WRITE_ADDR = %0d\tbin = %9b\nWRITE_DATA = %0d",req.apb_write_paddr,req.apb_write_paddr,req.apb_write_data);
       vif.transfer<=req.transfer;
       vif.PRESETn<=req.PRESETn;
       vif.READ_WRITE<=req.READ_WRITE;
-      vif.apb_read_paddr<=req.apb_read_paddr;
+      vif.apb_write_paddr<=req.apb_write_paddr;
+      vif.apb_write_data<=req.apb_write_data;
       ->act_e;      // Trigger active monitor
-      @(vif.drv_cb);
+      repeat(2)@(vif.drv_cb);
       `uvm_info(get_name,"ACTIVE MON TRIGGERED",UVM_MEDIUM)
-      if(req.transfer==1 &&(!prev_transf))
+      /*if(req.transfer==1 &&(!prev_transf))
         repeat(2)@(vif.drv_cb);
       else if(req.transfer==1&&(prev_transf))
-        repeat(1)@(vif.drv_cb);
+        repeat(1)@(vif.drv_cb);*/
       prev_transf=req.transfer;
       ->pass_e;      // Trigger passive monitor
       `uvm_info(get_name,"PASSIVE MON TRIGGERED",UVM_MEDIUM)
