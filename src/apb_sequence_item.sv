@@ -12,7 +12,7 @@ class apb_sequence_item extends uvm_sequence_item;
   bit [7:0] apb_read_data_out;
   bit PSLVERR;
 
-  bit change;
+  bit change = 0;
 
   // Factory registration
   `uvm_object_utils_begin(apb_sequence_item)

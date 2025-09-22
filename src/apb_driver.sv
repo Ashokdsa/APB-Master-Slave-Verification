@@ -32,40 +32,40 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
       seq_item_port.item_done();
     end
   endtask:run_phase
-  virtual task drive();    
+  virtual task drive();
     @(vif.drv_cb);
     $display("-----------------------------------------------------------------------------------------------------");
     `uvm_info(get_name,"SENT THE VALUES TO DUT",UVM_MEDIUM)
-    if(get_report_verbosity_level() >= UVM_MEDIUM)
-      $display("SYSTEM BUS SIGNALS: transfer = %0b PRESETn = %0b\nMAIN:\nREAD_WRITE = %0b",req.transfer,req.PRESETn,req.READ_WRITE);
-    if(req.READ_WRITE)    // Check if operation is WRITE
-    begin
       if(get_report_verbosity_level() >= UVM_MEDIUM)
+      begin
+        $display("SYSTEM BUS SIGNALS: transfer = %0b PRESETn = %0b\nMAIN:\nREAD_WRITE = %0b",req.transfer,req.PRESETn,req.READ_WRITE);
         $display("READ_ADDR = %0d\tbin = %9b",req.apb_read_paddr,req.apb_read_paddr);
+        $display("WRITE_ADDR = %0d\tbin = %9b\nWRITE_DATA = %0d",req.apb_write_paddr,req.apb_write_paddr,req.apb_write_data);
+      end
       vif.transfer<=req.transfer;
       vif.PRESETn<=req.PRESETn;
       vif.READ_WRITE<=req.READ_WRITE;
       vif.apb_read_paddr<=req.apb_read_paddr;
+      vif.apb_write_data<=req.apb_write_data;
+      vif.apb_write_paddr<=req.apb_write_paddr;
       `uvm_info(get_name,"ACTIVE MON TRIGGERED",UVM_MEDIUM)
       ->act_e;          // Trigger active monitor
-      repeat(2)@(vif.drv_cb);
+      repeat(1)@(vif.drv_cb);
+      if(req.change)
+      begin
+        seq_item_port.item_done();
+        seq_item_port.get_next_item(req);
+        vif.transfer<=req.transfer;
+        vif.PRESETn<=req.PRESETn;
+        vif.READ_WRITE<=req.READ_WRITE;
+        vif.apb_write_paddr<=req.apb_write_paddr;
+        vif.apb_write_data<=req.apb_write_data;
+        vif.apb_read_paddr<=req.apb_read_paddr;
+        `uvm_info(get_name,"INSERTED ERROR",UVM_MEDIUM);
+      end
+      repeat(1)@(vif.drv_cb);
       ->pass_e;            // Trigger passive monitor
       if(get_report_verbosity_level() >= UVM_MEDIUM)
         `uvm_info(get_name,"PASSIVE MON TRIGGERED",UVM_MEDIUM)
-    end
-    else      // Drive read signals
-    begin
-      $display("WRITE_ADDR = %0d\tbin = %9b\nWRITE_DATA = %0d",req.apb_write_paddr,req.apb_write_paddr,req.apb_write_data);
-      vif.transfer<=req.transfer;
-      vif.PRESETn<=req.PRESETn;
-      vif.READ_WRITE<=req.READ_WRITE;
-      vif.apb_write_paddr<=req.apb_write_paddr;
-      vif.apb_write_data<=req.apb_write_data;
-      ->act_e;      // Trigger active monitor
-      repeat(2)@(vif.drv_cb);
-      `uvm_info(get_name,"ACTIVE MON TRIGGERED",UVM_MEDIUM)
-      ->pass_e;      // Trigger passive monitor
-      `uvm_info(get_name,"PASSIVE MON TRIGGERED",UVM_MEDIUM)
-     end
   endtask:drive
 endclass:apb_driver

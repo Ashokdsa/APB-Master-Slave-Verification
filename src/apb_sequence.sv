@@ -320,26 +320,26 @@ class apb_diff_slave_sequence#(int val = 2) extends apb_base_sequence;    //Gene
   endtask:body
 endclass:apb_diff_slave_sequence
 
-/*class apb_one_clock_sequence#(int val = 2) extends apb_base_sequence;    //Generates transactions where transfer=0 after one clock signal
+class apb_one_clock_sequence#(int val = 3) extends apb_base_sequence;    //Generates transactions where transfer=0 after one clock signal
   `uvm_object_param_utils(apb_one_clock_sequence#(val))    //Factory Registration
   int count3;
 
   function new(string name = "apb_one_clock_sequence");
     super.new(name);
+    read_prev = 1;
   endfunction:new
 
   task body();
     seq = apb_sequence_item::type_id::create("one_clock_sequence_item");
-    seq.change = 0;
+    seq.change = 1;
     count3 = 0;
     repeat(val) begin:repeat_val
       wait_for_grant();
-      seq.change = !seq.transfer;
-      assert(seq.randomize() with 
+      assert(seq.randomize() with
       {
         seq.transfer == seq.change;    //alternate transfer
         soft seq.READ_WRITE != read_prev;
-        if(!READ_WRITE)
+        if(READ_WRITE)
           soft seq.apb_read_paddr == seq.apb_write_paddr;
         else
           foreach(qu[i])
@@ -348,53 +348,42 @@ endclass:apb_diff_slave_sequence
       })
       else
         `uvm_fatal(get_name,"RANDOMIZATION FAILED");
+      seq.change = !seq.transfer;
+      read_prev = seq.READ_WRITE;
       if(count3 > 0)
       begin
-        seq.change = 1;
         seq.READ_WRITE.rand_mode(0);
-        if(!seq.READ_WRITE)
-          seq.apb_read_paddr.rand_mode(0);
-        else
-          seq.apb_write_paddr.rand_mode(0);
+        seq.apb_read_paddr.rand_mode(0);
+        seq.apb_write_paddr.rand_mode(0);
         count3 = 0;
       end
       else
       begin
-        seq.change = 0;
         count3++;
         seq.READ_WRITE.rand_mode(1);
         seq.apb_read_paddr.rand_mode(0);
         seq.apb_write_paddr.rand_mode(0);
         if(seq.READ_WRITE)
         begin
-          qu.push_front(apb_write_paddr);
+          qu.push_front(seq.apb_write_paddr);
           seq.apb_read_paddr.rand_mode(1);
         end
         else
           seq.apb_write_paddr.rand_mode(1);
-      end
-      read_prev = seq.READ_WRITE;
-      if(seq.READ_WRITE)
-      begin
-        seq.apb_write_paddr.rand_mode(0);
-      end
-      else
-      begin
-        qu.push_front(seq.apb_write_paddr);
-        seq.apb_write_paddr.rand_mode(1);
       end
       send_request(seq);
       wait_for_item_done();
     end:repeat_val
   endtask:body
 endclass:apb_one_clock_sequence
-*/
+
 
 class apb_regress_sequence extends apb_base_sequence;    //Runs a collection of all sequences for full coverage
   apb_write_read_sequence#(1024) seq1;
   apb_reset_sequence#(4) seq2;
   apb_read_write_sequence#(2) seq3;
   apb_transfer_sequence#(3) seq4;
+  apb_one_clock_sequence#(6) seq5;    //Generates transactions where transfer=0 after one clock signal
   //apb_write_sequence#(1) seq5;
   //apb_read_sequence#(1) seq6;
   apb_same_sequence#(4) seq7;
@@ -407,16 +396,16 @@ class apb_regress_sequence extends apb_base_sequence;    //Runs a collection of 
 
   task body();
     seq = apb_sequence_item::type_id::create("base_sequence_item");
-    `uvm_info(get_name,"--\tTRYING TO READ BEFORE ANYTHING IS WRITTEN\t--",UVM_MEDIUM)
-    `uvm_do(seq3)
+    //`uvm_info(get_name,"--\tTRYING TO READ BEFORE ANYTHING IS WRITTEN\t--",UVM_MEDIUM)
+    //`uvm_do(seq3)
     `uvm_info(get_name,"--\tWRITING AND READING ONTO ALL ADDRESSES\t--",UVM_MEDIUM)
     `uvm_do(seq1)
     `uvm_info(get_name,"--\tRESET TRIGGERED DURING EXECUTION\t--",UVM_MEDIUM)
     `uvm_do(seq2)
     `uvm_info(get_name,"--\tTRANSFER == 0\t--",UVM_MEDIUM)
     `uvm_do(seq4)
-    //`uvm_do(seq5)
-    //`uvm_do(seq6)
+    `uvm_info(get_name,"--\tTRANSFER == 0 DURING ACCESS STATE\t--",UVM_MEDIUM)
+    `uvm_do(seq5)
     `uvm_info(get_name,"--\tSAME SEQUENCE SENT TWICE TO THE SAME LOCATION\t--",UVM_MEDIUM)
     `uvm_do(seq7)
     `uvm_info(get_name,"--\tSAME SEQUENCE SENT TO A DIFFERENT SLAVE\t--",UVM_MEDIUM)
