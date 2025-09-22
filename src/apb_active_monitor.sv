@@ -42,7 +42,7 @@ class apb_active_monitor extends uvm_monitor;
         if(get_report_verbosity_level() >= UVM_MEDIUM)
         begin
           $display("SYSTEM BUS SIGNALS: transfer = %0b PRESETn = %0b\nMAIN:\nREAD_WRITE = %0b",seq_item.transfer,seq_item.PRESETn,seq_item.READ_WRITE);
-          if(seq_item.READ_WRITE)
+          if(!seq_item.READ_WRITE)
             $display("WRITE_ADDR = %0d\tWRITE_DATA = %0d",seq_item.apb_write_paddr,seq_item.apb_write_data);
           else
             $display("READ_ADDR = %0d",seq_item.apb_read_paddr);
