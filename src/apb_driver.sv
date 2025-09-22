@@ -49,22 +49,6 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
       `uvm_info(get_name,"ACTIVE MON TRIGGERED",UVM_MEDIUM)
       ->act_e;          // Trigger active monitor
       repeat(2)@(vif.drv_cb);
-      // if(req.change)
-      // begin
-      //   seq_item_port.item_done();
-      //   seq_item_port.get_next_item(req); 
-      //   vif.transfer<=req.transfer;
-      //   vif.PRESETn<=req.PRESETn;
-      //   vif.READ_WRITE<=req.READ_WRITE;
-      //   vif.apb_write_paddr<=req.apb_write_paddr;
-      //   vif.apb_write_data<=req.apb_write_data;
-      //   vif.apb_read_paddr<=req.apb_read_paddr;
-      //   `uvm_info(get_name,"INSERTED ERROR",UVM_MEDIUM);
-      // end
-      /*if(req.transfer==1 &&(!prev_transf))  //IF FIRST TRANSFER, 
-      else if(req.transfer==1&&(prev_transf))  //NOT A FIRST TRANSFER  
-        repeat(1)@(vif.drv_cb);*/
-      prev_transf=req.transfer;
       ->pass_e;            // Trigger passive monitor
       if(get_report_verbosity_level() >= UVM_MEDIUM)
         `uvm_info(get_name,"PASSIVE MON TRIGGERED",UVM_MEDIUM)
@@ -80,11 +64,6 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
       ->act_e;      // Trigger active monitor
       repeat(2)@(vif.drv_cb);
       `uvm_info(get_name,"ACTIVE MON TRIGGERED",UVM_MEDIUM)
-      /*if(req.transfer==1 &&(!prev_transf))
-        repeat(2)@(vif.drv_cb);
-      else if(req.transfer==1&&(prev_transf))
-        repeat(1)@(vif.drv_cb);*/
-      prev_transf=req.transfer;
       ->pass_e;      // Trigger passive monitor
       `uvm_info(get_name,"PASSIVE MON TRIGGERED",UVM_MEDIUM)
      end
