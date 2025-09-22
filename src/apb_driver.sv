@@ -79,13 +79,12 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
       vif.READ_WRITE<=req.READ_WRITE;
       vif.apb_read_paddr<=req.apb_read_paddr;
       ->act_e;      // Trigger active monitor
+      @(vif.drv_cb);
       `uvm_info(get_name,"ACTIVE MON TRIGGERED",UVM_MEDIUM)
       if(req.transfer==1 &&(!prev_transf))
-        repeat(3)@(vif.drv_cb);
-      else if(req.transfer==1&&(prev_transf))
         repeat(2)@(vif.drv_cb);
-      else if(req.transfer==0)
-        @(vif.drv_cb);
+      else if(req.transfer==1&&(prev_transf))
+        repeat(1)@(vif.drv_cb);
       prev_transf=req.transfer;
       ->pass_e;      // Trigger passive monitor
       `uvm_info(get_name,"PASSIVE MON TRIGGERED",UVM_MEDIUM)
