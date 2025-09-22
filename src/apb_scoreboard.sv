@@ -61,7 +61,8 @@ class apb_scoreboard extends uvm_scoreboard;
  // Write method for the passive monitor 
   virtual function void write_passive(apb_sequence_item item1);
 	mon_seq_out.copy(item1); // Copy passive monitor transaction into mon_seq_out
-	mon_queue.push_back(mon_seq_out);  // check if this is neccessary
+	if(ref_queue.size>0)
+	  mon_queue.push_back(mon_seq_out);  // check if this is neccessary
   endfunction:write_passive
 
 
