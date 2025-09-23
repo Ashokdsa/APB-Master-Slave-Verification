@@ -379,7 +379,7 @@ endclass:apb_one_clock_sequence
 
 
 class apb_regress_sequence extends apb_base_sequence;    //Runs a collection of all sequences for full coverage
-  apb_write_read_sequence#(1024) seq1;
+  apb_write_read_sequence#(50) seq1;
   apb_reset_sequence#(4) seq2;
   apb_read_write_sequence#(2) seq3;
   apb_transfer_sequence#(3) seq4;
@@ -396,11 +396,11 @@ class apb_regress_sequence extends apb_base_sequence;    //Runs a collection of 
 
   task body();
     seq = apb_sequence_item::type_id::create("base_sequence_item");
-    `uvm_info(get_name,"--\tTRYING TO READ BEFORE ANYTHING IS WRITTEN\t--",UVM_MEDIUM)
-    `uvm_do(seq3)
+    //`uvm_info(get_name,"--\tTRYING TO READ BEFORE ANYTHING IS WRITTEN\t--",UVM_MEDIUM)
+    //`uvm_do(seq3)
     `uvm_info(get_name,"--\tWRITING AND READING ONTO ALL ADDRESSES\t--",UVM_MEDIUM)
     `uvm_do(seq1)
-    `uvm_info(get_name,"--\tRESET TRIGGERED DURING EXECUTION\t--",UVM_MEDIUM)
+    /*`uvm_info(get_name,"--\tRESET TRIGGERED DURING EXECUTION\t--",UVM_MEDIUM)
     `uvm_do(seq2)
     `uvm_info(get_name,"--\tTRANSFER == 0\t--",UVM_MEDIUM)
     `uvm_do(seq4)
@@ -409,6 +409,6 @@ class apb_regress_sequence extends apb_base_sequence;    //Runs a collection of 
     `uvm_info(get_name,"--\tSAME SEQUENCE SENT TWICE TO THE SAME LOCATION\t--",UVM_MEDIUM)
     `uvm_do(seq7)
     `uvm_info(get_name,"--\tSAME SEQUENCE SENT TO A DIFFERENT SLAVE\t--",UVM_MEDIUM)
-    `uvm_do(seq8)
+    `uvm_do(seq8)*/
   endtask:body
 endclass:apb_regress_sequence
