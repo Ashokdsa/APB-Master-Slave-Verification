@@ -10,7 +10,7 @@ all:
 	vcover report -html apb_coverage.ucdb -htmldir covReport -details
 
 clean:
-	rm -rf work/ transcript
+	rm -rf work/ transcript vsim.wlf wave.vcd
 	rm -rf covReport apb_coverage.ucdb
 	rm apb.log simulation.log
 	rm apb_coverage.ucdb
