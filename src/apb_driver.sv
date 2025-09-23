@@ -57,8 +57,5 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
        if(get_report_verbosity_level() >= UVM_MEDIUM)
         `uvm_info(get_name,"PASSIVE MON TRIGGERED",UVM_MEDIUM)
          repeat(1)@(posedge vif.drv_cb);
-     
- 
-    
   endtask
 endclass
