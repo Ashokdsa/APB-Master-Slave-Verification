@@ -49,11 +49,13 @@ class apb_write_read_sequence#(int val = 2) extends apb_base_sequence;    //Gene
       if(!seq.READ_WRITE)
       begin
         seq.apb_write_paddr.rand_mode(0);     // Freeze addr after write
+        seq.apb_write_data.rand_mode(0);
       end
       else
       begin
         qu.push_front(seq.apb_write_paddr);
         seq.apb_write_paddr.rand_mode(1);    // Allow addr change otherwise
+        seq.apb_write_data.rand_mode(1);
       end
       send_request(seq);
       wait_for_item_done();
@@ -88,11 +90,15 @@ class apb_reset_sequence#(int val = 2) extends apb_base_sequence;    //Generates
           `uvm_fatal(get_name,"RANDOMIZATION FAILED");
       read_prev = seq.READ_WRITE;
       if(!seq.READ_WRITE)
+      begin
         seq.apb_write_paddr.rand_mode(0);
+        seq.apb_write_data.rand_mode(0);
+      end
       else
       begin
         qu.push_front(seq.apb_write_paddr);
         seq.apb_write_paddr.rand_mode(1);
+        seq.apb_write_data.rand_mode(1);
       end
       send_request(seq);
       wait_for_item_done();
@@ -165,11 +171,15 @@ class apb_transfer_sequence#(int val = 2) extends apb_base_sequence;    //Genera
           `uvm_fatal(get_name,"RANDOMIZATION FAILED");
       read_prev = seq.READ_WRITE;
       if(!seq.READ_WRITE)
+      begin
         seq.apb_write_paddr.rand_mode(0);
+        seq.apb_write_data.rand_mode(0);
+      end
       else
       begin
         qu.push_front(seq.apb_write_paddr);
         seq.apb_write_paddr.rand_mode(1);
+        seq.apb_write_data.rand_mode(1);
       end
       send_request(seq);
       wait_for_item_done();
@@ -261,6 +271,7 @@ class apb_same_sequence#(int val = 2) extends apb_base_sequence;    // Generates
         count = 0;
         seq.READ_WRITE.rand_mode(1);
         seq.apb_write_paddr.rand_mode(1);
+        seq.apb_write_data.rand_mode(1);
         seq.apb_read_paddr.rand_mode(1);
         read_prev = !seq.READ_WRITE;
       end
@@ -270,6 +281,7 @@ class apb_same_sequence#(int val = 2) extends apb_base_sequence;    // Generates
         count = 1;
         seq.READ_WRITE.rand_mode(0);
         seq.apb_write_paddr.rand_mode(0);
+        seq.apb_write_data.rand_mode(0);
         seq.apb_read_paddr.rand_mode(0);
       end
       
@@ -308,12 +320,14 @@ class apb_diff_slave_sequence#(int val = 2) extends apb_base_sequence;    //Gene
       begin
         count = 0;
         seq.READ_WRITE.rand_mode(1);
+        seq.apb_write_data.rand_mode(1);
       end
       else
       begin
         prev = seq.apb_write_paddr;
         count++;
         seq.READ_WRITE.rand_mode(0);
+        seq.apb_write_data.rand_mode(0);
       end
       send_request(seq);
       wait_for_item_done();
@@ -356,6 +370,7 @@ class apb_one_clock_sequence#(int val = 3) extends apb_base_sequence;    //Gener
         seq.READ_WRITE.rand_mode(0);
         seq.apb_read_paddr.rand_mode(0);
         seq.apb_write_paddr.rand_mode(0);
+        seq.apb_write_data.rand_mode(0);
         count3 = 0;
       end
       else
@@ -364,13 +379,17 @@ class apb_one_clock_sequence#(int val = 3) extends apb_base_sequence;    //Gener
         seq.READ_WRITE.rand_mode(1);
         seq.apb_read_paddr.rand_mode(0);
         seq.apb_write_paddr.rand_mode(0);
+        seq.apb_write_data.rand_mode(0);
         if(seq.READ_WRITE)
         begin
           qu.push_front(seq.apb_write_paddr);
           seq.apb_read_paddr.rand_mode(1);
         end
         else
+        begin
           seq.apb_write_paddr.rand_mode(1);
+          seq.apb_write_data.rand_mode(1);
+        end
       end
       send_request(seq);
       wait_for_item_done();
