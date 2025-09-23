@@ -53,7 +53,7 @@ class apb_scoreboard extends uvm_scoreboard;
 //Write method for the active monitor 
   virtual function void write_active(apb_sequence_item item); 
 	  rs_in.copy(item); // Copy active monitor transaction into ref_seq_in
-    reference_model();
+    write_value();
 	if (rs_in.READ_WRITE)  // Only push while reading 
       ref_queue.push_back(rs_out);
   endfunction:write_active
@@ -67,7 +67,7 @@ class apb_scoreboard extends uvm_scoreboard;
 
 
 // Reference model 
-  task reference_model();
+  task write_value();
 	bit slave_sel;
     int unsigned idx;
     rs_out.copy(rs_in);
@@ -106,7 +106,7 @@ class apb_scoreboard extends uvm_scoreboard;
           end
       end
     
-  endtask:reference_model
+  endtask:write_value
 
   task run_phase(uvm_phase phase);
     bit PSLVERR_match;
