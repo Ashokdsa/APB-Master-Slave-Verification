@@ -14,7 +14,6 @@ clean:
 	rm -rf covReport alu_coverage.ucdb
 	rm apb.log simulation.log
 	rm apb_coverage.ucdb
-	rm wave.vcd
 	clear
 	clear
 	clear
@@ -22,6 +21,11 @@ clean:
 compile:
 	source $(QUESTA)
 	vlog -sv +acc +cover +fcover -l apb.log apb_top.sv
+
+wave:
+	source $(QUESTA)
+	vlog -sv +acc +cover +fcover -l apb.log apb_top.sv
+	vsim -novopt work.top
 
 simulate:
 	vsim -vopt work.top -voptargs=+acc=npr -assertdebug -l simulation.log -coverage -c -do "coverage save -onexit -assert -directive -cvg -codeAll apb_coverage.ucdb; run -all; exit"  

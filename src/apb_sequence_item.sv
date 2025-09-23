@@ -2,15 +2,15 @@
 
 class apb_sequence_item extends uvm_sequence_item;
   // Inputs to DUT
-  rand bit [7:0] apb_write_data;
-  rand bit transfer;
-  rand bit READ_WRITE;
-  rand bit PRESETn;
-  rand bit [8:0] apb_read_paddr;
-  rand bit [8:0] apb_write_paddr;
+  rand logic [7:0] apb_write_data;
+  rand logic transfer;
+  rand logic READ_WRITE;
+  rand logic PRESETn;
+  rand logic [8:0] apb_read_paddr;
+  rand logic [8:0] apb_write_paddr;
   // Outputs from DUT
-  bit [7:0] apb_read_data_out;
-  bit PSLVERR;
+  logic [7:0] apb_read_data_out;
+  logic PSLVERR;
 
   bit change = 0;
 

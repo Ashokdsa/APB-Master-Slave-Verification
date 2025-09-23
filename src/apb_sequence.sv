@@ -82,6 +82,7 @@ class apb_reset_sequence#(int val = 2) extends apb_base_sequence;    //Generates
         else
           foreach(qu[i])
             seq.apb_write_paddr != qu[i];
+          seq.PRESETn == 0; //To check if it holds value in the same location
       })
       else
           `uvm_fatal(get_name,"RANDOMIZATION FAILED");
@@ -377,6 +378,47 @@ class apb_one_clock_sequence#(int val = 3) extends apb_base_sequence;    //Gener
   endtask:body
 endclass:apb_one_clock_sequence
 
+class apb_check_sequence#(int val = 2) extends apb_base_sequence;    //Generates reset scenarios by de-asserting PRESETn
+  `uvm_object_param_utils(apb_check_sequence#(val))    //Factory Registration
+  apb_reset_sequence rsq;
+
+  function new(string name = "apb_check_sequence");
+    super.new(name);
+  endfunction:new
+
+  task body();
+    seq = apb_sequence_item::type_id::create("check_sequence_item");
+    read_prev = 1;
+    repeat(val) begin:repeat_val
+      wait_for_grant();
+      seq.PRESETn = 1;
+      seq.READ_WRITE = 0;
+      seq.apb_write_paddr = $urandom_range(0,255);
+      seq.apb_read_paddr = seq.apb_write_paddr;
+      seq.apb_write_data = $urandom_range(0,255);
+      seq.transfer = 1;
+      send_request(seq);
+      wait_for_item_done();
+
+      wait_for_grant();
+      seq.PRESETn = 1;
+      seq.READ_WRITE = 1;
+      send_request(seq);
+      wait_for_item_done();
+
+      wait_for_grant();
+      seq.PRESETn = 0;
+      send_request(seq);
+      wait_for_item_done();
+
+      wait_for_grant();
+      seq.PRESETn = 1;
+      seq.READ_WRITE = 1;
+      send_request(seq);
+      wait_for_item_done();
+    end:repeat_val
+  endtask:body
+endclass:apb_check_sequence
 
 class apb_regress_sequence extends apb_base_sequence;    //Runs a collection of all sequences for full coverage
   apb_write_read_sequence#(1024) seq1;

@@ -31,6 +31,7 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
   virtual task drive();
     //@(vif.drv_cb);
    // @(posedge vif.drv_cb);
+    $display("---------------------------------------------------------------------------");
     `uvm_info(get_name,"SENT THE VALUES TO DUT",UVM_MEDIUM)
     if(get_report_verbosity_level() >= UVM_MEDIUM)
       $display("SYSTEM BUS SIGNALS: transfer = %0b PRESETn = %0b\nMAIN:\nREAD_WRITE = %0b",req.transfer,req.PRESETn,req.READ_WRITE);
