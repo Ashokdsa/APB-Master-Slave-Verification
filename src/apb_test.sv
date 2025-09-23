@@ -12,7 +12,7 @@ class apb_test extends uvm_test;
 
   function void build_phase(uvm_phase phase);
     super.build_phase(phase);
-    apb_base_sequence::type_id::set_type_override(apb_write_read_sequence#(50)::get_type());
+    //apb_base_sequence::type_id::set_type_override(apb_write_read_sequence#(50)::get_type());
     //apb_base_sequence::type_id::set_type_override(apb_reset_sequence#(1)::get_type());
     //apb_base_sequence::type_id::set_type_override(apb_read_write_sequence#(2)::get_type());
     //apb_base_sequence::type_id::set_type_override(apb_transfer_sequence#(2)::get_type());
@@ -22,7 +22,7 @@ class apb_test extends uvm_test;
     //apb_base_sequence::type_id::set_type_override(apb_diff_slave_sequence#(2)::get_type());
     //apb_base_sequence::type_id::set_type_override(apb_one_clock_sequence#(6)::get_type());
     //apb_base_sequence::type_id::set_type_override(apb_check_sequence#(1)::get_type());
-    //apb_base_sequence::type_id::set_type_override(apb_regress_sequence::get_type());
+    apb_base_sequence::type_id::set_type_override(apb_regress_sequence::get_type());
     apb_env = apb_environment::type_id::create("apb_env",this);
   endfunction:build_phase
 

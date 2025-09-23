@@ -79,6 +79,7 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
           vif.apb_read_paddr<=req.apb_read_paddr;
           `uvm_warning(get_name,"ADDED next sequence in between")
         end
+        repeat(1)@(vif.drv_cb);
         `uvm_info(get_name,"came here",UVM_MEDIUM);
       end
       prev_transf=req.transfer;
