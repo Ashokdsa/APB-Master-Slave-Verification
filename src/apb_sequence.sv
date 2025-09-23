@@ -36,9 +36,8 @@ class apb_write_read_sequence#(int val = 2) extends apb_base_sequence;    //Gene
       {
         seq.transfer == 1;
         seq.READ_WRITE != read_prev;    // alternate read/write
-        if(READ_WRITE)
-          seq.apb_read_paddr == seq.apb_write_paddr;
-        else
+        seq.apb_read_paddr == seq.apb_write_paddr;
+        if(!READ_WRITE)
           foreach(qu[i])
             seq.apb_write_paddr != qu[i];
         seq.PRESETn == 1;
@@ -79,9 +78,8 @@ class apb_reset_sequence#(int val = 2) extends apb_base_sequence;    //Generates
       {
         seq.transfer == 1;
         seq.READ_WRITE != read_prev;
-        if(READ_WRITE)
-          seq.apb_read_paddr == seq.apb_write_paddr;
-        else
+        seq.apb_read_paddr == seq.apb_write_paddr;
+        if(!READ_WRITE)
           foreach(qu[i])
             seq.apb_write_paddr != qu[i];
           seq.PRESETn == 0; //To check if it holds value in the same location
@@ -121,9 +119,8 @@ class apb_read_write_sequence#(int val = 2) extends apb_base_sequence;    //- Fo
       {
         seq.transfer == 1;
         seq.READ_WRITE != read_prev;
-        if(!READ_WRITE)
-          seq.apb_write_paddr == seq.apb_read_paddr;    // same addr for R/W
-        else
+        seq.apb_write_paddr == seq.apb_read_paddr;    // same addr for R/W
+        if(READ_WRITE)
           foreach(qu[i])
             seq.apb_read_paddr != qu[i];
         seq.PRESETn == 1;
@@ -160,9 +157,8 @@ class apb_transfer_sequence#(int val = 2) extends apb_base_sequence;    //Genera
       {
         seq.transfer == 0;    //No transfer
         seq.READ_WRITE != read_prev;
-        if(READ_WRITE)
-          seq.apb_read_paddr == seq.apb_write_paddr;
-        else
+        seq.apb_read_paddr == seq.apb_write_paddr;
+        if(!READ_WRITE)
           foreach(qu[i])
             seq.apb_write_paddr != qu[i];
         seq.PRESETn == 1;
@@ -354,9 +350,8 @@ class apb_one_clock_sequence#(int val = 3) extends apb_base_sequence;    //Gener
       {
         seq.transfer == seq.change;    //alternate transfer
         soft seq.READ_WRITE != read_prev;
-        if(READ_WRITE)
-          soft seq.apb_read_paddr == seq.apb_write_paddr;
-        else
+        soft seq.apb_read_paddr == seq.apb_write_paddr;
+        if(!READ_WRITE)
           foreach(qu[i])
             soft seq.apb_write_paddr != qu[i];
         seq.PRESETn == 1;
