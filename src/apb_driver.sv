@@ -47,18 +47,16 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
       ->act_e;
       
       if(req.transfer==1 &&(!prev_transf))  //IF FIRST TRANSFER, 
-        repeat(2)@(posedge vif.drv_cb);
+        repeat(3)@(posedge vif.drv_cb);
       else if(req.transfer==1&&(prev_transf))  //NOT A FIRST TRANSFER  
         begin
-          repeat(1)@(posedge vif.drv_cb);
+          repeat(2)@(posedge vif.drv_cb);
           `uvm_info(get_name,"came here",UVM_MEDIUM);end
-      else if(req.transfer==0)
-        @(posedge vif.drv_cb);
       prev_transf=req.transfer;
       ->pass_e;
        if(get_report_verbosity_level() >= UVM_MEDIUM)
         `uvm_info(get_name,"PASSIVE MON TRIGGERED",UVM_MEDIUM)
-         repeat(2)@(posedge vif.drv_cb);
+         repeat(1)@(posedge vif.drv_cb);
      
  
     

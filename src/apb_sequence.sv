@@ -396,15 +396,15 @@ class apb_regress_sequence extends apb_base_sequence;    //Runs a collection of 
 
   task body();
     seq = apb_sequence_item::type_id::create("base_sequence_item");
-    //`uvm_info(get_name,"--\tTRYING TO READ BEFORE ANYTHING IS WRITTEN\t--",UVM_MEDIUM)
-    //`uvm_do(seq3)
+    `uvm_info(get_name,"--\tTRYING TO READ BEFORE ANYTHING IS WRITTEN\t--",UVM_MEDIUM)
+    `uvm_do(seq3)
     `uvm_info(get_name,"--\tWRITING AND READING ONTO ALL ADDRESSES\t--",UVM_MEDIUM)
     `uvm_do(seq1)
     `uvm_info(get_name,"--\tRESET TRIGGERED DURING EXECUTION\t--",UVM_MEDIUM)
     `uvm_do(seq2)
     `uvm_info(get_name,"--\tTRANSFER == 0\t--",UVM_MEDIUM)
     `uvm_do(seq4)
-    `uvm_info(get_name,"--\tTRANSFER == 0 DURING ACCESS STATE\t--",UVM_MEDIUM)
+    `uvm_info(get_name,"--\tTRANSFER == 0 AND VALUES CHANGE DURING ACCESS STATE\t--",UVM_MEDIUM)
     `uvm_do(seq5)
     `uvm_info(get_name,"--\tSAME SEQUENCE SENT TWICE TO THE SAME LOCATION\t--",UVM_MEDIUM)
     `uvm_do(seq7)

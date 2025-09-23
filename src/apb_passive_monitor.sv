@@ -25,7 +25,6 @@ class apb_passive_monitor extends uvm_monitor;
    forever 
      begin
        @(pass_e);
-       @(vif.p_mon_cb);
         seq_item.apb_read_data_out = vif.apb_read_data_out;
         seq_item.PSLVERR = vif.PSLVERR;
         item_collected_port.write(seq_item);
