@@ -48,11 +48,41 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
       ->act_e;
       
       if(req.transfer==1 &&(!prev_transf))  //IF FIRST TRANSFER, 
-        repeat(3)@(posedge vif.drv_cb);
-      else if(req.transfer==1&&(prev_transf))  //NOT A FIRST TRANSFER  
+      begin
+        repeat(2)@(posedge vif.drv_cb);
+        /*if(req.change)
         begin
-          repeat(2)@(posedge vif.drv_cb);
-          `uvm_info(get_name,"came here",UVM_MEDIUM);end
+          seq_item_port.item_done();
+          seq_item_port.get_next_item(req); 
+          vif.transfer<=req.transfer;
+          vif.PRESETn<=req.PRESETn;
+          vif.READ_WRITE<=req.READ_WRITE;
+          vif.apb_write_paddr<=req.apb_write_paddr;
+          vif.apb_write_data<=req.apb_write_data;
+          vif.apb_read_paddr<=req.apb_read_paddr;
+        end
+        */
+        `uvm_warning(get_name,"ADDED next sequence in between")
+        repeat(1)@(posedge vif.drv_cb);
+      end
+      else if(req.transfer==1&&(prev_transf))  //NOT A FIRST TRANSFER  
+      begin
+        repeat(2)@(posedge vif.drv_cb);
+        /*if(req.change)
+        begin
+          seq_item_port.item_done();
+          seq_item_port.get_next_item(req); 
+          vif.transfer<=req.transfer;
+          vif.PRESETn<=req.PRESETn;
+          vif.READ_WRITE<=req.READ_WRITE;
+          vif.apb_write_paddr<=req.apb_write_paddr;
+          vif.apb_write_data<=req.apb_write_data;
+          vif.apb_read_paddr<=req.apb_read_paddr;
+          `uvm_warning(get_name,"ADDED next sequence in between")
+        end
+        */
+        `uvm_info(get_name,"came here",UVM_MEDIUM);
+      end
       prev_transf=req.transfer;
       ->pass_e;
        if(get_report_verbosity_level() >= UVM_MEDIUM)

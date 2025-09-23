@@ -4,7 +4,7 @@
 `include "apb_pkg.svh"
 import uvm_pkg::*;
 import apb_pkg::*;
-`include "/fetools/work_area/frontend/Batch_10/APB_project/apbtop.v"
+`include "/home/ashokpius/design.sv"
 
 module top;
   bit clk;

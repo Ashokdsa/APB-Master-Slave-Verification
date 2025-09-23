@@ -426,8 +426,7 @@ class apb_regress_sequence extends apb_base_sequence;    //Runs a collection of 
   apb_read_write_sequence#(2) seq3;
   apb_transfer_sequence#(3) seq4;
   apb_one_clock_sequence#(6) seq5;    //Generates transactions where transfer=0 after one clock signal
-  //apb_write_sequence#(1) seq5;
-  //apb_read_sequence#(1) seq6;
+  apb_check_sequence#(1) seq6;
   apb_same_sequence#(4) seq7;
   apb_diff_slave_sequence#(4) seq8;
   `uvm_object_utils(apb_regress_sequence)
@@ -448,6 +447,8 @@ class apb_regress_sequence extends apb_base_sequence;    //Runs a collection of 
     `uvm_do(seq4)
     `uvm_info(get_name,"--\tTRANSFER == 0 AND VALUES CHANGE DURING ACCESS STATE\t--",UVM_MEDIUM)
     `uvm_do(seq5)
+    `uvm_info(get_name,"--\tCHECK THE EFFECT OF RESET\t--",UVM_MEDIUM)
+    `uvm_do(seq6)
     `uvm_info(get_name,"--\tSAME SEQUENCE SENT TWICE TO THE SAME LOCATION\t--",UVM_MEDIUM)
     `uvm_do(seq7)
     `uvm_info(get_name,"--\tSAME SEQUENCE SENT TO A DIFFERENT SLAVE\t--",UVM_MEDIUM)

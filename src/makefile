@@ -11,7 +11,7 @@ all:
 
 clean:
 	rm -rf work/ transcript
-	rm -rf covReport alu_coverage.ucdb
+	rm -rf covReport apb_coverage.ucdb
 	rm apb.log simulation.log
 	rm apb_coverage.ucdb
 	clear
@@ -24,7 +24,7 @@ compile:
 
 wave:
 	source $(QUESTA)
-	vlog -sv +acc +cover +fcover -l apb.log apb_top.sv
+	vlog -sv +acc +cover +fcover -l simulation.log apb_top.sv
 	vsim -novopt work.top
 
 simulate:
