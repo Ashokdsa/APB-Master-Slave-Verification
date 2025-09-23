@@ -50,7 +50,7 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
       if(req.transfer==1 &&(!prev_transf))  //IF FIRST TRANSFER, 
       begin
         repeat(2)@(posedge vif.drv_cb);
-        /*if(req.change)
+        if(req.change)
         begin
           seq_item_port.item_done();
           seq_item_port.get_next_item(req); 
@@ -61,14 +61,13 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
           vif.apb_write_data<=req.apb_write_data;
           vif.apb_read_paddr<=req.apb_read_paddr;
         end
-        */
         `uvm_warning(get_name,"ADDED next sequence in between")
         repeat(1)@(posedge vif.drv_cb);
       end
       else if(req.transfer==1&&(prev_transf))  //NOT A FIRST TRANSFER  
       begin
         repeat(2)@(posedge vif.drv_cb);
-        /*if(req.change)
+        if(req.change)
         begin
           seq_item_port.item_done();
           seq_item_port.get_next_item(req); 
@@ -80,7 +79,6 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
           vif.apb_read_paddr<=req.apb_read_paddr;
           `uvm_warning(get_name,"ADDED next sequence in between")
         end
-        */
         `uvm_info(get_name,"came here",UVM_MEDIUM);
       end
       prev_transf=req.transfer;
