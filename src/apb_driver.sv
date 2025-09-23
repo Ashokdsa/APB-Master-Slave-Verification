@@ -21,7 +21,7 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
   endfunction
   
   virtual task run_phase(uvm_phase phase);
-    repeat(2)@(posedge vif.drv_cb);
+    repeat(2)@(vif.drv_cb);
     forever begin
       seq_item_port.get_next_item(req); 
       drive();
@@ -47,9 +47,9 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
       `uvm_info(get_name,"ACTIVE MON TRIGGERED",UVM_MEDIUM)
       ->act_e;
       
-      //if(req.transfer==1 &&(!prev_transf))  //IF FIRST TRANSFER, 
-      //begin
-        repeat(2)@(posedge vif.drv_cb);
+      if(req.transfer==1 &&(!prev_transf))  //IF FIRST TRANSFER, 
+      begin
+        repeat(2)@(vif.drv_cb);
         if(req.change)
         begin
           seq_item_port.item_done();
@@ -62,10 +62,11 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
           vif.apb_read_paddr<=req.apb_read_paddr;
           `uvm_warning(get_name,"ADDED next sequence in between")
         end
-      //end
-      /*else if(req.transfer==1&&(prev_transf))  //NOT A FIRST TRANSFER  
+        repeat(1)@(vif.drv_cb);
+      end
+      else if(req.transfer==1&&(prev_transf))  //NOT A FIRST TRANSFER  
       begin
-        repeat(2)@(posedge vif.drv_cb);
+        repeat(2)@(vif.drv_cb);
         if(req.change)
         begin
           seq_item_port.item_done();
@@ -80,11 +81,10 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
         end
         `uvm_info(get_name,"came here",UVM_MEDIUM);
       end
-        */
       prev_transf=req.transfer;
       ->pass_e;
        if(get_report_verbosity_level() >= UVM_MEDIUM)
         `uvm_info(get_name,"PASSIVE MON TRIGGERED",UVM_MEDIUM)
-         repeat(1)@(posedge vif.drv_cb);
+         repeat(1)@(vif.drv_cb);
   endtask
 endclass

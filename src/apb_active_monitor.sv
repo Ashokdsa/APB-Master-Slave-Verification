@@ -29,7 +29,7 @@ class apb_active_monitor extends uvm_monitor;
    forever 
      begin
        @(act_e);          //waits for event and samples interface values
-       @(vif.a_mon_cb);
+        @(vif.a_mon_cb);
         seq_item.transfer = vif.transfer;
         seq_item.PRESETn = vif.PRESETn;
         seq_item.READ_WRITE = vif.READ_WRITE;
