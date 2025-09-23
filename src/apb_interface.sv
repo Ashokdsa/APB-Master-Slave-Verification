@@ -69,5 +69,11 @@ interface apb_inf(input bit clk);
   else begin
     $error("Fail ERR");
   end
-    
+
+  /*sequence for_p5;
+  endsequence
+
+  property p5;
+  endproperty
+  */
 endinterface:apb_inf
