@@ -35,8 +35,6 @@ module top;
   initial begin:initial_reset
     vif.PRESETn = 0;
     @(posedge clk);
-    vif.PRESETn = 1;
-    @(posedge clk);
   end:initial_reset
 
   initial begin:test_run
