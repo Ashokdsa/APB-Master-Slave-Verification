@@ -348,7 +348,7 @@ class apb_one_clock_sequence#(int val = 3) extends apb_base_sequence;    //Gener
       wait_for_grant();
       assert(seq.randomize() with
       {
-        seq.transfer == seq.change;    //alternate transfer
+        seq.transfer == 1;    //alternate transfer
         soft seq.READ_WRITE != read_prev;
         soft seq.apb_read_paddr == seq.apb_write_paddr;
         if(!READ_WRITE)
