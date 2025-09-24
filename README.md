@@ -46,7 +46,7 @@ This repository contains a simple UVM testbench for verifying the APB Master to 
 ### Pre-Requisites
 A **SystemVerilog simulator** that supports **UVM**, such as **QuestaSim**, **Cadence Xcelium**, or **Synopsys VCS**. \
 \
-*The makefile present in the **src/** contains only the execution commands for QuestaSim version 10.6c*
+*The makefile present in the **src/** contains only the execution commands for QuestaSim*
 
 ## Makefile Usage
 The **Makefile** automates the compilation, and simulation of the **UVM** testbench. Which can be accessed only in the **src/** folder
