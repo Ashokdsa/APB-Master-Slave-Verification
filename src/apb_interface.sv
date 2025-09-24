@@ -60,7 +60,7 @@ interface apb_inf(input bit clk);
   end
   
   property p4;		// Assertion p4: Slave error condition check
-	  @(posedge clk) transfer |-> (($isunknown(apb_write_data) && !READ_WRITE) || ($isunknown(apb_write_paddr) && !READ_WRITE) || ($isunknown(apb_read_paddr) && READ_WRITE)) |-> PSLVERR;
+	  @(posedge clk) transfer |-> (($isunknown(apb_write_data) && !READ_WRITE) || ($isunknown(apb_write_paddr) && !READ_WRITE) || ($isunknown(apb_read_paddr) && READ_WRITE)) |=> PSLVERR;
   endproperty:p4
   
   assert property(p4)begin
