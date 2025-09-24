@@ -1,5 +1,7 @@
 QUESTA := /home/share/questa.csh
 SHELL := /bin/csh
+TEST ?= apb_regress_test
+V ?= UVM_DEBUG
 
 .ONESHELL:	
 all:
@@ -14,21 +16,22 @@ clean:
 	rm -rf covReport apb_coverage.ucdb
 	rm apb.log simulation.log
 	rm apb_coverage.ucdb
-	clear
+	cleaBOSITY=<level>
 	clear
 	clear
 
 compile:
+	@echo "COMPILING CODE ......."
 	source $(QUESTA)
-	vlog -sv +acc +cover +fcover -l apb.log apb_top.sv
+	vlog -sv +acc +cover +fcover -l apb.log apb_top.sv 
 
 wave:
-	source $(QUESTA)
-	vlog -sv +acc +cover +fcover -l simulation.log apb_top.sv
+	make compile
 	vsim -novopt work.top
 
 simulate:
-	vsim -vopt work.top -voptargs=+acc=npr -assertdebug -l simulation.log -coverage -c -do "coverage save -onexit -assert -directive -cvg -codeAll apb_coverage.ucdb; run -all; exit"  
+	@echo "SIMULATING CODE"
+	vsim -vopt work.top -voptargs=+acc=npr -assertdebug -l simulation.log -coverage -c -do "coverage save -onexit -assert -directive -cvg -codeAll apb_coverage.ucdb; run -all; exit" +UVM_TESTNAME=$(TEST) +UVM_VERBOSITY=$(V)
 
 view:
 	firefox ./covReport/index.html
