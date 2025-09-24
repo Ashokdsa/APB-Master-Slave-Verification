@@ -50,7 +50,7 @@ interface apb_inf(input bit clk);
   end
   
   property p3;		// Assertion p3: Reset behavior check
-    @(posedge clk) !PRESETn |-> (PSLVERR == 0 && apb_read_data_out == 0);
+	  @(posedge clk) !PRESETn |=> (PSLVERR == 0 && apb_read_data_out == 0);
   endproperty:p3
   assert property(p3)begin
     $info("Pass RESET");
