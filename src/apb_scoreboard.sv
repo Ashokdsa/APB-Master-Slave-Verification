@@ -48,12 +48,13 @@ class apb_scoreboard extends uvm_scoreboard;
     compares_total = 0;
     compares_pass  = 0;
     compares_fail  = 0;
+		compares_slverr = 0;
   endfunction:new
 
 //Write method for the active monitor 
   virtual function void write_active(apb_sequence_item item); 
 	  rs_in.copy(item); // Copy active monitor transaction into ref_seq_in
-    write_value();
+    reference_model();
 	if (rs_in.READ_WRITE)  // Only push while reading 
       ref_queue.push_back(rs_out);
   endfunction:write_active
@@ -67,7 +68,7 @@ class apb_scoreboard extends uvm_scoreboard;
 
 
 // Reference model 
-  task write_value();
+  task reference_model();
 	bit slave_sel;
     int unsigned idx;
     rs_out.copy(rs_in);
@@ -85,28 +86,31 @@ class apb_scoreboard extends uvm_scoreboard;
           begin
             if (!rs_in.READ_WRITE) 
               begin
-      			slave_sel = rs_in.apb_write_paddr[8];
-      			idx = rs_in.apb_write_paddr[7:0];
-      		    if (slave_sel == 0)
-        		  slave1_mem[idx] = rs_in.apb_write_data;
-      		    else
-        		  slave2_mem[idx] = rs_in.apb_write_data;
-                rs_out.PSLVERR=1'b0;   // Not sure about this PSLVERR
+      					slave_sel = rs_in.apb_write_paddr[8];
+      					idx = rs_in.apb_write_paddr[7:0];
+								if ($isunknown(rs_in.apb_write_paddr)) 
+        					rs_out.PSLVERR = 1'b1;
+      		    	else if (slave_sel == 0)
+        		  		slave1_mem[idx] = rs_in.apb_write_data;
+      		    	else
+        		  		slave2_mem[idx] = rs_in.apb_write_data;
+                	rs_out.PSLVERR = rs_out.PSLVERR | rs_in.change;   // Not sure about this PSLVERR
               end
             else 
               begin
-      			slave_sel = rs_in.apb_read_paddr[8];
-      			idx = rs_in.apb_read_paddr[7:0];
-      			if (slave_sel == 0)
-        		  rs_out.apb_read_data_out = slave1_mem[idx];
-      			else
-        		  rs_out.apb_read_data_out = slave2_mem[idx];
-      			rs_out.PSLVERR = 1'b0;// Not sure about the PSLVERR 
-    		 end
+      					slave_sel = rs_in.apb_read_paddr[8];
+      					idx = rs_in.apb_read_paddr[7:0];
+								if ($isunknown(rs_in.apb_read_paddr)) 
+      						rs_out.PSLVERR = 1'b1;
+      					else if (slave_sel == 0)
+        		  		rs_out.apb_read_data_out = slave1_mem[idx];
+      					else
+        		  		rs_out.apb_read_data_out = slave2_mem[idx];
+      						rs_out.PSLVERR = rs_out.PSLVERR | rs_in.change; // Not sure about the PSLVERR 
+    		 			end
           end
       end
-    
-  endtask:write_value
+  endtask:reference_model
 
   task run_phase(uvm_phase phase);
     bit PSLVERR_match;
@@ -122,8 +126,21 @@ class apb_scoreboard extends uvm_scoreboard;
 
         PSLVERR_match = (ref_seq_out.PSLVERR === mon_seq_out.PSLVERR);
         data_match    = (ref_seq_out.apb_read_data_out === mon_seq_out.apb_read_data_out);
-
-        if (data_match) 
+				
+				if (ref_seq_out.PSLVERR) 
+					begin
+						if (PSLVERR_match)
+						begin
+							'uvm_info("APB_SCB". $sformat("---------\tCOMPARE MATCH PSLVERR: ref=%0d dut=%0d\t------",ref_seq_out.PSLVERR, mon_seq_out.PSLVERR), UVM_LOW)
+							compares_pass++;
+						end
+						else
+						begin
+							`uvm_error("APB_SCB", $sformat("---------\tCOMPARE FAILED SLVERR: ref=%0d dut=%0d\t--------", ref_seq_out.PSLVERR, mon_seq_out.PSLVERR))
+							compares_fail++;
+						end
+					end
+        else if (PSLVERR_match && data_match) 
           begin
           compares_pass++;
             `uvm_info("APB_SCB", $sformatf("------\tCOMPARE PASS: ref=%0d dut=%0d\t------", ref_seq_out.apb_read_data_out, mon_seq_out.apb_read_data_out), UVM_LOW)
