@@ -41,6 +41,7 @@ class apb_write_read_sequence#(int val = 2) extends apb_base_sequence;    //Gene
           foreach(qu[i])
             seq.apb_write_paddr != qu[i];
         seq.PRESETn == 1;
+        seq.apb_write_data == seq.apb_write_paddr[7:0];
       })
       else
         `uvm_fatal(get_name,"RANDOMIZATION FAILED");
@@ -55,6 +56,11 @@ class apb_write_read_sequence#(int val = 2) extends apb_base_sequence;    //Gene
         qu.push_front(seq.apb_write_paddr);
         seq.apb_write_paddr.rand_mode(1);    // Allow addr change otherwise
         seq.apb_write_data.rand_mode(1);
+      end
+      if(qu.size >= 512)
+      begin
+        while(qu.size())
+          void'(qu.pop_front());
       end
       send_request(seq);
       wait_for_item_done();
@@ -98,6 +104,11 @@ class apb_reset_sequence#(int val = 2) extends apb_base_sequence;    //Generates
         seq.apb_write_paddr.rand_mode(1);
         seq.apb_write_data.rand_mode(1);
       end
+      if(qu.size >= 512)
+      begin
+        while(qu.size())
+          void'(qu.pop_front());
+      end
       send_request(seq);
       wait_for_item_done();
     end:repeat_val
@@ -124,6 +135,7 @@ class apb_read_write_sequence#(int val = 2) extends apb_base_sequence;    //- Fo
           foreach(qu[i])
             seq.apb_read_paddr != qu[i];
         seq.PRESETn == 1;
+        int'(seq.apb_write_data) == int'(seq.apb_read_paddr[7:0]) + 128;
       })
       else
         `uvm_fatal(get_name,"RANDOMIZATION FAILED");
@@ -134,6 +146,11 @@ class apb_read_write_sequence#(int val = 2) extends apb_base_sequence;    //- Fo
       begin
         qu.push_front(seq.apb_read_paddr);
         seq.apb_read_paddr.rand_mode(1);
+      end
+      if(qu.size >= 512)
+      begin
+        while(qu.size())
+          void'(qu.pop_front());
       end
       send_request(seq);
       wait_for_item_done();
@@ -177,6 +194,11 @@ class apb_transfer_sequence#(int val = 2) extends apb_base_sequence;    //Genera
         seq.apb_write_paddr.rand_mode(1);
         seq.apb_write_data.rand_mode(1);
       end
+      if(qu.size >= 512)
+      begin
+        while(qu.size())
+          void'(qu.pop_front());
+      end
       send_request(seq);
       wait_for_item_done();
     end:repeat_val
@@ -205,6 +227,11 @@ class apb_write_sequence#(int val = 1) extends apb_base_sequence;    // Generate
       else
         `uvm_fatal(get_name,"RANDOMIZATION FAILED");
       qu.push_front(seq.apb_write_paddr);
+      if(qu.size >= 512)
+      begin
+        while(qu.size())
+          void'(qu.pop_front());
+      end
       send_request(seq);
       wait_for_item_done();
     end
@@ -233,6 +260,11 @@ class apb_read_sequence#(int val = 1) extends apb_base_sequence;    //Generates 
       else
         `uvm_fatal(get_name,"RANDOMIZATION FAILED");
       qu.push_front(seq.apb_read_paddr);
+      if(qu.size >= 512)
+      begin
+        while(qu.size())
+          void'(qu.pop_front());
+      end
       send_request(seq);
       wait_for_item_done();
     end
@@ -271,7 +303,6 @@ class apb_same_sequence#(int val = 2) extends apb_base_sequence;    // Generates
         seq.apb_read_paddr.rand_mode(1);
         read_prev = !seq.READ_WRITE;
       end
-      
       else
       begin
         count = 1;
@@ -280,7 +311,6 @@ class apb_same_sequence#(int val = 2) extends apb_base_sequence;    // Generates
         seq.apb_write_data.rand_mode(0);
         seq.apb_read_paddr.rand_mode(0);
       end
-      
       send_request(seq);
       wait_for_item_done();
     end:repeat_val
@@ -348,7 +378,7 @@ class apb_one_clock_sequence#(int val = 3) extends apb_base_sequence;    //Gener
       wait_for_grant();
       assert(seq.randomize() with
       {
-        seq.transfer == 1;    //alternate transfer
+        seq.transfer == 1;
         soft seq.READ_WRITE != read_prev;
         soft seq.apb_read_paddr == seq.apb_write_paddr;
         if(!READ_WRITE)
@@ -385,6 +415,11 @@ class apb_one_clock_sequence#(int val = 3) extends apb_base_sequence;    //Gener
           seq.apb_write_paddr.rand_mode(1);
           seq.apb_write_data.rand_mode(1);
         end
+      end
+      if(qu.size >= 512)
+      begin
+        while(qu.size())
+          void'(qu.pop_front());
       end
       wait_for_item_done();
     end:repeat_val
@@ -458,8 +493,8 @@ class apb_regress_sequence extends apb_base_sequence;    //Runs a collection of 
   apb_invalid_sequence#(2) seq9;
   apb_write_read_sequence#(1024) seq1;
   apb_reset_sequence#(4) seq2;
-  apb_read_write_sequence#(2) seq3;
-  apb_transfer_sequence#(3) seq4;
+  apb_read_write_sequence#(1024) seq3;
+  apb_transfer_sequence#(5) seq4;
   apb_one_clock_sequence#(6) seq5;    //Generates transactions where transfer=0 after one clock signal
   apb_check_sequence#(1) seq6;
   apb_same_sequence#(4) seq7;
@@ -474,15 +509,15 @@ class apb_regress_sequence extends apb_base_sequence;    //Runs a collection of 
     seq = apb_sequence_item::type_id::create("base_sequence_item");
     `uvm_info(get_name,"--\tSENDING INVALID SEQUENCE FOR ERROR\t--",UVM_MEDIUM)
     `uvm_do(seq9)
-    `uvm_info(get_name,"--\tTRYING TO READ BEFORE ANYTHING IS WRITTEN\t--",UVM_MEDIUM)
-    `uvm_do(seq3)
-    `uvm_info(get_name,"--\tWRITING AND READING ONTO ALL ADDRESSES\t--",UVM_MEDIUM)
+    `uvm_info(get_name,"--\tWRITE FOLLOWED BY READ ALL ADDRESSES\t--",UVM_MEDIUM)
     `uvm_do(seq1)
+    `uvm_info(get_name,"--\tREAD FOLLOWED BY WRITE\t--",UVM_MEDIUM)
+    `uvm_do(seq3)
     `uvm_info(get_name,"--\tRESET TRIGGERED DURING EXECUTION\t--",UVM_MEDIUM)
     `uvm_do(seq2)
     `uvm_info(get_name,"--\tTRANSFER == 0\t--",UVM_MEDIUM)
     `uvm_do(seq4)
-    `uvm_info(get_name,"--\tTRANSFER == 0 AND VALUES CHANGE DURING ACCESS STATE\t--",UVM_MEDIUM)
+    `uvm_info(get_name,"--\tVALUES CHANGE FROM SETUP TO ACCESS STATE\t--",UVM_MEDIUM)
     `uvm_do(seq5)
     `uvm_info(get_name,"--\tCHECK THE EFFECT OF RESET\t--",UVM_MEDIUM)
     `uvm_do(seq6)
