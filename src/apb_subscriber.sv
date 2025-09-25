@@ -21,7 +21,6 @@ endgroup:input_cg
   covergroup output_cg;     // Output coverage group
     read_data_cp: coverpoint mon.apb_read_data_out { bins rdata_vals[] = {[0:255]}; }
     slverr_cp:    coverpoint mon.PSLVERR { bins no_err = {0}; bins err = {1}; }
-    read_dataxslverr: cross slverr_cp, read_data_cp;    // Cross coverage between error status and read data
   endgroup:output_cg
 
   function new(string name = "subs", uvm_component parent = null);

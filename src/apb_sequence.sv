@@ -41,7 +41,7 @@ class apb_write_read_sequence#(int val = 2) extends apb_base_sequence;    //Gene
           foreach(qu[i])
             seq.apb_write_paddr != qu[i];
         seq.PRESETn == 1;
-        seq.apb_write_data == seq.apb_write_paddr[7:0];
+        seq.apb_write_data == seq.apb_write_paddr[7:0] + (seq.apb_write_paddr[8] * 8'd64);
       })
       else
         `uvm_fatal(get_name,"RANDOMIZATION FAILED");
@@ -135,7 +135,7 @@ class apb_read_write_sequence#(int val = 2) extends apb_base_sequence;    //- Fo
           foreach(qu[i])
             seq.apb_read_paddr != qu[i];
         seq.PRESETn == 1;
-        int'(seq.apb_write_data) == int'(seq.apb_read_paddr[7:0]) + 128;
+        seq.apb_write_data == seq.apb_read_paddr[7:0] + 8'd128 + (seq.apb_read_paddr[8]*8'd64);
       })
       else
         `uvm_fatal(get_name,"RANDOMIZATION FAILED");
