@@ -2,6 +2,7 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
   virtual apb_inf vif;
   event act_e,pass_e;
   logic prev_transf=0;
+  bit change_val;
   `uvm_component_utils(apb_driver)
     
   function new (string name, uvm_component parent);
@@ -18,6 +19,9 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
     
     if(!uvm_config_db#(event)::get(this, "", "ev2", pass_e))
       `uvm_fatal("NO_VIF",{"virtual interface must be set for: ",get_full_name(),".vif"});
+
+    if(!uvm_config_db#(bit)::get(this, "", "bit_val", change_val))
+       `uvm_fatal("NOVIF",{"virtual interface must be set for: ",get_full_name(),".vif"});
   endfunction
   
   virtual task run_phase(uvm_phase phase);
@@ -43,13 +47,15 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
       vif.apb_write_paddr<=req.apb_write_paddr;
       vif.apb_write_data<=req.apb_write_data;
       vif.apb_read_paddr<=req.apb_read_paddr;
+      change_val <= req.change;
       
       `uvm_info(get_name,"ACTIVE MON TRIGGERED",UVM_MEDIUM)
       ->act_e;
       
       if(req.transfer==1 &&(!prev_transf))  //IF FIRST TRANSFER, 
       begin
-        repeat(2)@(vif.drv_cb);
+        repeat(1)@(vif.drv_cb);
+        `uvm_warning(get_name,$sformatf("CHANGE = %0b",req.change))
         if(req.change)
         begin
           seq_item_port.item_done();
@@ -62,11 +68,12 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
           vif.apb_read_paddr<=req.apb_read_paddr;
           `uvm_warning(get_name,"ADDED next sequence in between")
         end
-        repeat(1)@(vif.drv_cb);
+        repeat(2)@(vif.drv_cb);
       end
       else if(req.transfer==1&&(prev_transf))  //NOT A FIRST TRANSFER  
       begin
-        repeat(2)@(vif.drv_cb);
+        repeat(1)@(vif.drv_cb);
+        `uvm_warning(get_name,$sformatf("CHANGE = %0b",req.change))
         if(req.change)
         begin
           seq_item_port.item_done();
@@ -79,8 +86,7 @@ class apb_driver extends uvm_driver #(apb_sequence_item);
           vif.apb_read_paddr<=req.apb_read_paddr;
           `uvm_warning(get_name,"ADDED next sequence in between")
         end
-        `uvm_info(get_name,"came here",UVM_MEDIUM);
-         //repeat(1)@(vif.drv_cb);
+        repeat(2)@(vif.drv_cb);
       end
       prev_transf=req.transfer;
       ->pass_e;

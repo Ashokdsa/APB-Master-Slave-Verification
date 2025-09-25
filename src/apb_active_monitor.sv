@@ -5,6 +5,7 @@ class apb_active_monitor extends uvm_monitor;
   event act_e;          // Event to trigger sampling
   uvm_analysis_port #(apb_sequence_item) item_collected_port;    // Analysis port
   apb_sequence_item seq_item;
+  bit change_val;
 
   // Register this component with UVM factory
   `uvm_component_utils(apb_active_monitor)
@@ -23,6 +24,11 @@ class apb_active_monitor extends uvm_monitor;
     
     if(!uvm_config_db#(event)::get(this, "", "ev1", act_e))
        `uvm_fatal("NOVIF",{"virtual interface must be set for: ",get_full_name(),".vif"});
+
+    if(!uvm_config_db#(bit)::get(this, "", "bit_val", change_val))
+       `uvm_fatal("NOVIF",{"virtual interface must be set for: ",get_full_name(),".vif"});
+
+   //CHANGEs
   endfunction:build_phase
 
   virtual task run_phase(uvm_phase phase);
@@ -30,12 +36,14 @@ class apb_active_monitor extends uvm_monitor;
      begin
        @(act_e);          //waits for event and samples interface values
         @(vif.a_mon_cb);
+        #0;
         seq_item.transfer = vif.transfer;
         seq_item.PRESETn = vif.PRESETn;
         seq_item.READ_WRITE = vif.READ_WRITE;
         seq_item.apb_write_paddr = vif.apb_write_paddr;
         seq_item.apb_read_paddr = vif.apb_read_paddr;
         seq_item.apb_write_data = vif.apb_write_data;
+        seq_item.change = change_val;
        
         item_collected_port.write(seq_item);
         `uvm_info(get_name,"RECIEVED INPUTS",UVM_MEDIUM)

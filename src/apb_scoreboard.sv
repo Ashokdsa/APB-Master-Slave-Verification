@@ -31,6 +31,7 @@ class apb_scoreboard extends uvm_scoreboard;
   int unsigned compares_pass;
   int unsigned compares_fail;
 
+
   function new(string name="apb_scoreboard", uvm_component parent = null);
     super.new(name, parent);
     active_mon_export  = new("active_mon_export",  this);
@@ -48,12 +49,13 @@ class apb_scoreboard extends uvm_scoreboard;
     compares_total = 0;
     compares_pass  = 0;
     compares_fail  = 0;
+
   endfunction:new
 
 //Write method for the active monitor 
   virtual function void write_active(apb_sequence_item item); 
 	  rs_in.copy(item); // Copy active monitor transaction into ref_seq_in
-    reference_model();
+    write_val();
 	if (rs_in.READ_WRITE)  // Only push while reading 
       ref_queue.push_back(rs_out);
   endfunction:write_active
@@ -67,7 +69,7 @@ class apb_scoreboard extends uvm_scoreboard;
 
 
 // Reference model 
-  task reference_model();
+  task write_val();
 	bit slave_sel;
     int unsigned idx;
     rs_out.copy(rs_in);
@@ -107,7 +109,7 @@ class apb_scoreboard extends uvm_scoreboard;
       	    rs_out.PSLVERR = rs_out.PSLVERR | rs_in.change; // Not sure about the PSLVERR 
           end
       end
-  endtask:reference_model
+  endtask:write_val
 
   task run_phase(uvm_phase phase);
     bit PSLVERR_match;

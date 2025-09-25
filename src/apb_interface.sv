@@ -71,12 +71,12 @@ interface apb_inf(input bit clk);
   end
 
   property p5;
-    @(posedge clk)
+    @(posedge clk) disable iff(!READ_WRITE)
     ((transfer && READ_WRITE)) ##1 first_match(($stable(apb_read_paddr) && READ_WRITE)[*2]);
   endproperty
 
   property p6;
-    @(posedge clk) 
+    @(posedge clk) disable iff(READ_WRITE) 
     ((transfer && !READ_WRITE)) ##1 first_match(($stable({apb_write_paddr,apb_write_data}) && !READ_WRITE)[*2]);
   endproperty
   

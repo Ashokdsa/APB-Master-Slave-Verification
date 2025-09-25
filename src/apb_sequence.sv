@@ -358,7 +358,7 @@ class apb_one_clock_sequence#(int val = 3) extends apb_base_sequence;    //Gener
       })
       else
         `uvm_fatal(get_name,"RANDOMIZATION FAILED");
-      seq.change = !seq.transfer;
+      send_request(seq);
       read_prev = seq.READ_WRITE;
       if(count3 > 0)
       begin
@@ -386,7 +386,6 @@ class apb_one_clock_sequence#(int val = 3) extends apb_base_sequence;    //Gener
           seq.apb_write_data.rand_mode(1);
         end
       end
-      send_request(seq);
       wait_for_item_done();
     end:repeat_val
   endtask:body
@@ -434,7 +433,29 @@ class apb_check_sequence#(int val = 2) extends apb_base_sequence;    //Generates
   endtask:body
 endclass:apb_check_sequence
 
+class apb_invalid_sequence#(int val = 1) extends apb_base_sequence;    //Generates only read transactions
+  `uvm_object_param_utils(apb_invalid_sequence#(val))    //Factory Registration
+
+  function new(string name = "apb_invalid_sequence");
+    super.new(name);
+  endfunction:new
+
+  task body();
+    seq = apb_sequence_item::type_id::create("invalid_sequence_item");
+    seq.apb_write_paddr[8] = 1;
+    repeat(val) begin
+      wait_for_grant();
+      seq.transfer = 1;
+      seq.apb_read_paddr[8] = seq.apb_write_paddr[8];
+      send_request(seq);
+      wait_for_item_done();
+      seq.apb_write_paddr[8] = ~seq.apb_read_paddr[8];
+    end
+  endtask:body
+endclass:apb_invalid_sequence
+
 class apb_regress_sequence extends apb_base_sequence;    //Runs a collection of all sequences for full coverage
+  apb_invalid_sequence#(2) seq9;
   apb_write_read_sequence#(1024) seq1;
   apb_reset_sequence#(4) seq2;
   apb_read_write_sequence#(2) seq3;
@@ -451,6 +472,8 @@ class apb_regress_sequence extends apb_base_sequence;    //Runs a collection of 
 
   task body();
     seq = apb_sequence_item::type_id::create("base_sequence_item");
+    `uvm_info(get_name,"--\tSENDING INVALID SEQUENCE FOR ERROR\t--",UVM_MEDIUM)
+    `uvm_do(seq9)
     `uvm_info(get_name,"--\tTRYING TO READ BEFORE ANYTHING IS WRITTEN\t--",UVM_MEDIUM)
     `uvm_do(seq3)
     `uvm_info(get_name,"--\tWRITING AND READING ONTO ALL ADDRESSES\t--",UVM_MEDIUM)

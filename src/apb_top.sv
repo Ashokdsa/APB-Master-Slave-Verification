@@ -8,6 +8,7 @@ import apb_pkg::*;
 
 module top;
   bit clk;
+  bit a;
 
   // Clock generation : 10ns period 
   always #5 clk = ~clk;      
@@ -27,6 +28,7 @@ module top;
     uvm_config_db#(virtual apb_inf)::set(null, "*", "vif", vif);
     uvm_config_db#(event)::set(null, "*", "ev1", act_e);
     uvm_config_db#(event)::set(null, "*", "ev2", pass_e);
+    uvm_config_db#(bit)::set(null, "*", "bit_val", a);
     
     $dumpfile("wave.vcd");
     $dumpvars(0);
