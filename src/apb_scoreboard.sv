@@ -48,7 +48,6 @@ class apb_scoreboard extends uvm_scoreboard;
     compares_total = 0;
     compares_pass  = 0;
     compares_fail  = 0;
-		compares_slverr = 0;
   endfunction:new
 
 //Write method for the active monitor 
@@ -131,12 +130,12 @@ class apb_scoreboard extends uvm_scoreboard;
 					begin
 						if (PSLVERR_match)
 						begin
-							'uvm_info("APB_SCB". $sformat("---------\tCOMPARE MATCH PSLVERR: ref=%0d dut=%0d\t------",ref_seq_out.PSLVERR, mon_seq_out.PSLVERR), UVM_LOW)
+							`uvm_info("APB_SCB", $sformatf("---------\tCOMPARE MATCH PSLVERR: ref=%0d dut=%0d\t------",ref_seq_out.PSLVERR, mon_seq_out.PSLVERR), UVM_LOW)
 							compares_pass++;
 						end
 						else
 						begin
-							`uvm_error("APB_SCB", $sformat("---------\tCOMPARE FAILED SLVERR: ref=%0d dut=%0d\t--------", ref_seq_out.PSLVERR, mon_seq_out.PSLVERR))
+							`uvm_error("APB_SCB", $sformatf("---------\tCOMPARE FAILED SLVERR: ref=%0d dut=%0d\t--------", ref_seq_out.PSLVERR, mon_seq_out.PSLVERR))
 							compares_fail++;
 						end
 					end
