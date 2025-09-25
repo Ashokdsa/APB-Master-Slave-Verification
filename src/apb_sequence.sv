@@ -135,7 +135,7 @@ class apb_read_write_sequence#(int val = 2) extends apb_base_sequence;    //- Fo
           foreach(qu[i])
             seq.apb_read_paddr != qu[i];
         seq.PRESETn == 1;
-        seq.apb_write_data == seq.apb_read_paddr[7:0] + 8'd128 + (seq.apb_read_paddr[8]*8'd64);
+        seq.apb_write_data == (seq.apb_read_paddr[7:0] + 8'd128 + (seq.apb_read_paddr[8]*8'd64));
       })
       else
         `uvm_fatal(get_name,"RANDOMIZATION FAILED");
@@ -238,8 +238,8 @@ class apb_write_sequence#(int val = 1) extends apb_base_sequence;    // Generate
   endtask:body
 endclass:apb_write_sequence
 
-class apb_read_sequence#(int val = 1) extends apb_base_sequence;    //Generates only read transactions
-  `uvm_object_param_utils(apb_read_sequence#(val))    //Factory Registration
+class apb_read_sequence#(int val = 1,int paddr = 0) extends apb_base_sequence;    //Generates only read transactions
+  `uvm_object_param_utils(apb_read_sequence#(val,paddr))    //Factory Registration
 
   function new(string name = "apb_read_sequence");
     super.new(name);
@@ -254,8 +254,8 @@ class apb_read_sequence#(int val = 1) extends apb_base_sequence;    //Generates 
         seq.transfer == 1;
         seq.READ_WRITE == 1;    //Read
         seq.PRESETn == 1;
-        foreach(qu[i])
-          seq.apb_read_paddr != qu[i];
+        if(paddr >= 0)
+          seq.apb_read_paddr != paddr;
       })
       else
         `uvm_fatal(get_name,"RANDOMIZATION FAILED");
@@ -341,7 +341,7 @@ class apb_diff_slave_sequence#(int val = 2) extends apb_base_sequence;    //Gene
       })
       else
           `uvm_fatal(get_name,"RANDOMIZATION FAILED");
-      choice = seq.READ_WRITE ? seq.apb_write_paddr[8] : seq.apb_read_paddr[8];
+      choice = !seq.READ_WRITE ? seq.apb_write_paddr[8] : seq.apb_read_paddr[8];
       if(count>0)
       begin
         count = 0;
@@ -480,25 +480,161 @@ class apb_invalid_sequence#(int val = 1) extends apb_base_sequence;    //Generat
     seq.apb_write_paddr[8] = 1;
     repeat(val) begin
       wait_for_grant();
+      seq.PRESETn = 1;
       seq.transfer = 1;
       seq.apb_read_paddr[8] = seq.apb_write_paddr[8];
       send_request(seq);
       wait_for_item_done();
-      seq.apb_write_paddr[8] = ~seq.apb_read_paddr[8];
+      //seq.apb_write_paddr[8] = ~seq.apb_read_paddr[8];
     end
   endtask:body
 endclass:apb_invalid_sequence
 
+class apb_complete_sequence#(int val = 1) extends apb_base_sequence;    //Generates only read transactions
+  `uvm_object_param_utils(apb_complete_sequence#(val))    //Factory Registration
+
+  function new(string name = "apb_complete_sequence");
+    super.new(name);
+  endfunction:new
+
+  task body();
+    seq = apb_sequence_item::type_id::create("complete_sequence_item");
+    seq.apb_write_paddr[8] = 1;
+    repeat(2) begin
+      wait_for_grant();
+      seq.PRESETn = 1;
+      seq.transfer = 0;
+      seq.apb_write_paddr = 8'bxxxxxxxx;
+      seq.apb_write_paddr[8] = $urandom;
+      seq.READ_WRITE = 0;
+      send_request(seq);
+      wait_for_item_done();
+      //seq.apb_write_paddr[8] = ~seq.apb_read_paddr[8];
+    end
+    repeat(2) begin
+      wait_for_grant();
+      seq.PRESETn = 1;
+      seq.transfer = 0;
+      seq.apb_write_paddr = 8'bxxxxxxxx;
+      seq.apb_write_paddr[8] = $urandom;
+      seq.READ_WRITE = 1;
+      send_request(seq);
+      wait_for_item_done();
+      //seq.apb_write_paddr[8] = ~seq.apb_read_paddr[8];
+    end
+
+    repeat(2) begin
+      wait_for_grant();
+      seq.PRESETn = 1;
+      seq.transfer = 1;
+      seq.apb_read_paddr = 9'b1xxxxxxxxx;
+      seq.READ_WRITE = 1;
+      send_request(seq);
+      wait_for_item_done();
+    end
+    repeat(2) begin
+      wait_for_grant();
+      seq.PRESETn = 1;
+      seq.transfer = 1;
+      seq.apb_read_paddr = 9'bxxxxxxxxxx;
+      seq.READ_WRITE = 0;
+      send_request(seq);
+      wait_for_item_done();
+    end
+    seq.apb_read_paddr = $urandom;
+    seq.apb_write_data = $urandom;
+    repeat(2) begin
+      wait_for_grant();
+      seq.PRESETn = 1;
+      seq.transfer = 0;
+      seq.apb_write_paddr = 9'b1xxxxxxxx;
+      seq.READ_WRITE = 0;
+      send_request(seq);
+      wait_for_item_done();
+    end
+    seq.apb_read_paddr = 9'b1xxxxxxxx;
+    seq.apb_write_data = $urandom;
+    repeat(2) begin
+      wait_for_grant();
+      seq.PRESETn = 1;
+      seq.transfer = 0;
+      seq.apb_write_paddr = 9'bxxxxxxxxx;
+      seq.READ_WRITE = 1;
+      send_request(seq);
+      wait_for_item_done();
+    end
+    repeat(2) begin
+      wait_for_grant();
+      seq.PRESETn = 1;
+      seq.transfer = 0;
+      seq.apb_write_paddr = 9'bxxxxxxxxx;
+      seq.READ_WRITE = 0;
+      send_request(seq);
+      wait_for_item_done();
+    end
+  endtask:body
+endclass:apb_complete_sequence
+
+class apb_wr_rest_sequence#(int val = 2) extends apb_base_sequence;    //Generates both write and read transactions alternately
+  `uvm_object_param_utils(apb_wr_rest_sequence#(val))    //Factory Registration
+
+  function new(string name = "apb_wr_rest_sequence");
+    super.new(name);
+  endfunction:new
+
+  task body();
+    seq = apb_sequence_item::type_id::create("wr_sequence_item");
+    read_prev = 1;
+    repeat(val) begin:repeat_val
+      wait_for_grant();
+      assert(seq.randomize() with 
+      {
+        seq.transfer == 1;
+        seq.READ_WRITE != read_prev;    // alternate read/write
+        seq.apb_read_paddr == seq.apb_write_paddr;
+        if(!READ_WRITE)
+          foreach(qu[i])
+            seq.apb_write_paddr != qu[i];
+        seq.PRESETn == 1;
+        seq.apb_write_data == (seq.apb_write_paddr[7:0] + 8'd128 +  (seq.apb_write_paddr[8] * 8'd64));
+      })
+      else
+        `uvm_fatal(get_name,"RANDOMIZATION FAILED");
+      read_prev = seq.READ_WRITE;
+      if(!seq.READ_WRITE)
+      begin
+        seq.apb_write_paddr.rand_mode(0);     // Freeze addr after write
+        seq.apb_write_data.rand_mode(0);
+      end
+      else
+      begin
+        qu.push_front(seq.apb_write_paddr);
+        seq.apb_write_paddr.rand_mode(1);    // Allow addr change otherwise
+        seq.apb_write_data.rand_mode(1);
+      end
+      if(qu.size >= 512)
+      begin
+        while(qu.size())
+          void'(qu.pop_front());
+      end
+      send_request(seq);
+      wait_for_item_done();
+    end:repeat_val
+  endtask:body
+endclass
+
 class apb_regress_sequence extends apb_base_sequence;    //Runs a collection of all sequences for full coverage
-  apb_invalid_sequence#(2) seq9;
+  apb_invalid_sequence#(4) seq9;
   apb_write_read_sequence#(1024) seq1;
+  apb_wr_rest_sequence#(1024) seq11;
   apb_reset_sequence#(4) seq2;
-  apb_read_write_sequence#(1024) seq3;
+  apb_read_write_sequence#(2) seq3;
   apb_transfer_sequence#(5) seq4;
   apb_one_clock_sequence#(6) seq5;    //Generates transactions where transfer=0 after one clock signal
   apb_check_sequence#(1) seq6;
   apb_same_sequence#(4) seq7;
   apb_diff_slave_sequence#(4) seq8;
+  apb_complete_sequence#(1) seq10;
   `uvm_object_utils(apb_regress_sequence)
 
   function new(string name = "apb_regress_sequence");
@@ -507,10 +643,10 @@ class apb_regress_sequence extends apb_base_sequence;    //Runs a collection of 
 
   task body();
     seq = apb_sequence_item::type_id::create("base_sequence_item");
-    `uvm_info(get_name,"--\tSENDING INVALID SEQUENCE FOR ERROR\t--",UVM_MEDIUM)
-    `uvm_do(seq9)
     `uvm_info(get_name,"--\tWRITE FOLLOWED BY READ ALL ADDRESSES\t--",UVM_MEDIUM)
     `uvm_do(seq1)
+    `uvm_info(get_name,"--\tWRITE FOLLOWED BY READ TO COMPLETE RDATA\t--",UVM_MEDIUM)
+    `uvm_do(seq11)
     `uvm_info(get_name,"--\tREAD FOLLOWED BY WRITE\t--",UVM_MEDIUM)
     `uvm_do(seq3)
     `uvm_info(get_name,"--\tRESET TRIGGERED DURING EXECUTION\t--",UVM_MEDIUM)
@@ -523,7 +659,11 @@ class apb_regress_sequence extends apb_base_sequence;    //Runs a collection of 
     `uvm_do(seq6)
     `uvm_info(get_name,"--\tSAME SEQUENCE SENT TWICE TO THE SAME LOCATION\t--",UVM_MEDIUM)
     `uvm_do(seq7)
+    `uvm_info(get_name,"--\tSENDING INVALID SEQUENCE FOR ERROR\t--",UVM_MEDIUM)
+    `uvm_do(seq9)
     `uvm_info(get_name,"--\tSAME SEQUENCE SENT TO A DIFFERENT SLAVE\t--",UVM_MEDIUM)
     `uvm_do(seq8)
+    `uvm_info(get_name,"FOR CODE COVERAGE",UVM_MEDIUM)
+    `uvm_do(seq10)
   endtask:body
 endclass:apb_regress_sequence
