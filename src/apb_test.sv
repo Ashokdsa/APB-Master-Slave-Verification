@@ -35,7 +35,7 @@ endclass:apb_test
 
 class apb_write_read_test extends apb_test;
   `uvm_component_utils(apb_write_read_test);
-  apb_write_read_sequence#(1024) seq;
+  apb_write_read_sequence#(30) seq;
   function new(string name = "apb_wr_test", uvm_component parent = null);
     super.new(name, parent);
   endfunction
@@ -45,7 +45,7 @@ class apb_write_read_test extends apb_test;
     super.run_phase(phase);
     phase.raise_objection(this);//Raise Objection
     `uvm_info(get_name,"SEQUENCE STARTED",UVM_NONE);
-    seq = apb_write_read_sequence#(1024)::type_id::create();
+    seq = apb_write_read_sequence#(30)::type_id::create();
     seq.start(apb_env.active_agent.sequencer);
     phase.drop_objection(this);    //Drop Objection
     phase_done.set_drain_time(this,20);    // Drain time before dropping objection

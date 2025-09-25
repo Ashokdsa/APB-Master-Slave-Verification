@@ -87,26 +87,24 @@ class apb_scoreboard extends uvm_scoreboard;
               begin
       					slave_sel = rs_in.apb_write_paddr[8];
       					idx = rs_in.apb_write_paddr[7:0];
-								if ($isunknown(rs_in.apb_write_paddr)) 
-        					rs_out.PSLVERR = 1'b1;
-      		    	else if (slave_sel == 0)
+        				rs_out.PSLVERR = $isunknown(rs_in.apb_write_paddr);
+      		    	if (slave_sel == 0 && !rs_out.PSLVERR)
         		  		slave1_mem[idx] = rs_in.apb_write_data;
-      		    	else
+      		    	else if(!rs_out.PSLVERR)
         		  		slave2_mem[idx] = rs_in.apb_write_data;
-                	rs_out.PSLVERR = rs_out.PSLVERR | rs_in.change;   // Not sure about this PSLVERR
               end
             else 
               begin
       					slave_sel = rs_in.apb_read_paddr[8];
       					idx = rs_in.apb_read_paddr[7:0];
-								if ($isunknown(rs_in.apb_read_paddr)) 
-      						rs_out.PSLVERR = 1'b1;
-      					else if (slave_sel == 0)
+      					rs_out.PSLVERR = $isunknown(rs_in.apb_read_paddr);
+      					if (slave_sel == 0 && !rs_out.PSLVERR)
         		  		rs_out.apb_read_data_out = slave1_mem[idx];
-      					else
+      					else if(rs_out.PSLVERR)
         		  		rs_out.apb_read_data_out = slave2_mem[idx];
-      						rs_out.PSLVERR = rs_out.PSLVERR | rs_in.change; // Not sure about the PSLVERR 
     		 			end
+              $display("PSLV = %0b CHANGE = %0b",rs_out.PSLVERR,rs_in.change);
+      	    rs_out.PSLVERR = rs_out.PSLVERR | rs_in.change; // Not sure about the PSLVERR 
           end
       end
   endtask:reference_model
@@ -147,7 +145,7 @@ class apb_scoreboard extends uvm_scoreboard;
         else  
           begin
             compares_fail++;
-            `uvm_error("APB_SCB", $sformatf("--\tCOMPARE FAIL\n  REF: %0d\n  DUT: %0d\n--------------------",
+            `uvm_error("APB_SCB", $sformatf("M1 = %0d M2 = %0b --\tCOMPARE FAIL\n  REF: %0d\n  DUT: %0d\n--------------------",PSLVERR_match,data_match,
             ref_seq_out.apb_read_data_out, mon_seq_out.apb_read_data_out))
           end
       end
