@@ -407,7 +407,7 @@ class apb_check_sequence#(int val = 2) extends apb_base_sequence;    //Generates
       wait_for_grant();
       seq.PRESETn = 1;
       seq.READ_WRITE = 0;
-      seq.apb_write_paddr = $urandom_range(0,255);
+      std::randomize(seq.apb_write_paddr) with {seq.apb_write_paddr inside {[0:63],[256:319]};}; //CHANGEs
       seq.apb_read_paddr = seq.apb_write_paddr;
       seq.apb_write_data = $urandom_range(0,255);
       seq.transfer = 1;
