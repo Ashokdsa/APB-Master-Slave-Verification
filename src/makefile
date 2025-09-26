@@ -27,7 +27,7 @@ compile:
 
 wave:
 	make compile
-	vsim -novopt work.top
+	vsim -novopt work.top +UVM_TESTNAME=$(TEST) +UVM_VERBOSITY=$(V)
 
 simulate:
 	@echo "SIMULATING CODE"
